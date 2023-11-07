@@ -2642,7 +2642,7 @@ void loop()
       hp.sync();
     }
     // check mqtt status and retry
-    if (wifiConnected and !mqtt_connected and millis() > mqtt_reconnect_timeout) // retry to connect mqtt
+    if (wifiConnected and (!mqtt_connected || !mqttClient.connected()) and millis() > mqtt_reconnect_timeout) // retry to connect mqtt
     {
       mqtt_reconnect_timeout = millis() + MQTT_RECONNECT_INTERVAL_MS; // only retry next 5 seconds to prevent crash
 #ifdef ESP32
