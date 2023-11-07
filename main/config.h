@@ -116,7 +116,7 @@ unsigned long requestWifiScanTime = 0;
 #define WIFI_SCAN_PERIOD 120000
 unsigned lastWifiScanMillis;
 
-const PROGMEM char *m2mqtt_version = "2023.11.0";
+const PROGMEM char *m2mqtt_version = "2023.11.1";
 
 // Define global variables for files
 #ifdef ESP32

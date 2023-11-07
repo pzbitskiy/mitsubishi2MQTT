@@ -317,7 +317,7 @@ bool loadWifi()
     return false;
   }
   // Allocate document capacity.
-  const size_t capacity = JSON_OBJECT_SIZE(4) + size;
+  const size_t capacity = JSON_OBJECT_SIZE(4) + 130;
   DynamicJsonDocument doc(capacity);
   deserializeJson(doc, configFile);
   // Check key exist to prevent data is "null"
@@ -378,7 +378,7 @@ bool loadMqtt()
     return false;
   }
   // Allocate document capacity.
-  const size_t capacity = JSON_OBJECT_SIZE(6) + size;
+  const size_t capacity = JSON_OBJECT_SIZE(6) + 400;
   DynamicJsonDocument doc(capacity);
   deserializeJson(doc, configFile);
   // check key to prevent data is "null" if not exist
@@ -464,7 +464,7 @@ bool loadUnit()
     return false;
   }
   // Allocate document capacity.
-  const size_t capacity = JSON_OBJECT_SIZE(3) + size;
+  const size_t capacity = JSON_OBJECT_SIZE(3) + 200;
   DynamicJsonDocument doc(capacity);
   deserializeJson(doc, configFile);
   // unit
@@ -519,7 +519,7 @@ bool loadOthers()
     return false;
   }
   // Allocate document capacity.
-  const size_t capacity = JSON_OBJECT_SIZE(4) + size;
+  const size_t capacity = JSON_OBJECT_SIZE(4) + 200;
   DynamicJsonDocument doc(capacity);
   deserializeJson(doc, configFile);
   // unit
