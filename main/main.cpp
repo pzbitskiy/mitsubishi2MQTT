@@ -29,10 +29,10 @@ bool loadWifi();
 bool loadMqtt();
 bool loadUnit();
 bool loadOthers();
-void saveMqtt(String mqttFn, String mqttHost, String mqttPort, String mqttUser, String mqttPwd, String mqttTopic);
+void saveMqtt(String mqttFn, const String& mqttHost, String mqttPort, const String& mqttUser, const String& mqttPwd, String mqttTopic);
 void saveUnit(String tempUnit, String supportMode, String loginPassword, String tempStep, String languageIndex);
-void saveWifi(String apSsid, String apPwd, String hostName, String otaPwd);
-void saveOthers(String haa, String haat, String debugPckts, String debugLogs);
+void saveWifi(String apSsid, const String& apPwd, String hostName, const String& otaPwd);
+void saveOthers(const String& haa, const String& haat, const String& debugPckts, const String& debugLogs);
 void saveCurrentOthers();
 void initCaptivePortal();
 void initMqtt();
@@ -56,8 +56,8 @@ void handleMetrics(AsyncWebServerRequest *request);
 void handleLogin(AsyncWebServerRequest *request);
 void handleUpgrade(AsyncWebServerRequest *request);
 void handleUploadDone(AsyncWebServerRequest *request);
-void handleUploadLoop(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final);
-void write_log(String log);
+void handleUploadLoop(AsyncWebServerRequest *request, const String& filename, size_t index, uint8_t *data, size_t len, bool final);
+void write_log(const String& log);
 heatpumpSettings change_states(AsyncWebServerRequest *request, heatpumpSettings settings);
 void readHeatPumpSettings();
 void hpSettingsChanged();
@@ -92,7 +92,7 @@ void onMqttSubscribe(uint16_t packetId, uint8_t qos);
 void onMqttUnsubscribe(uint16_t packetId);
 void onMqttMessage(char *topic, char *payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total);
 void onMqttPublish(uint16_t packetId);
-String getValueBySeparator(String data, char separator, int index);
+String getValueBySeparator(const String& data, char separator, int index);
 void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len);
 
 void sendRebootRequest(unsigned long nextSeconds);
@@ -316,13 +316,10 @@ bool loadWifi()
     ESP_LOGE(TAG, "Wifi config file size is too large");
     return false;
   }
-
-  // Allocate a buffer to store contents of the file.
-  std::unique_ptr<char[]> buf(new char[size]);
-  configFile.readBytes(buf.get(), size);
+  // Allocate document capacity.
   const size_t capacity = JSON_OBJECT_SIZE(4) + 130;
   DynamicJsonDocument doc(capacity);
-  deserializeJson(doc, buf.get());
+  deserializeJson(doc, configFile);
   // Check key exist to prevent data is "null"
   if (doc.containsKey("hostname"))
   {
@@ -380,12 +377,10 @@ bool loadMqtt()
     // write_log("Config file size is too large");
     return false;
   }
-  std::unique_ptr<char[]> buf(new char[size]);
-
-  configFile.readBytes(buf.get(), size);
+  // Allocate document capacity.
   const size_t capacity = JSON_OBJECT_SIZE(6) + 400;
   DynamicJsonDocument doc(capacity);
-  deserializeJson(doc, buf.get());
+  deserializeJson(doc, configFile);
   // check key to prevent data is "null" if not exist
   if (doc.containsKey("mqtt_fn"))
   {
@@ -468,12 +463,10 @@ bool loadUnit()
   {
     return false;
   }
-  std::unique_ptr<char[]> buf(new char[size]);
-
-  configFile.readBytes(buf.get(), size);
+  // Allocate document capacity.
   const size_t capacity = JSON_OBJECT_SIZE(3) + 200;
   DynamicJsonDocument doc(capacity);
-  deserializeJson(doc, buf.get());
+  deserializeJson(doc, configFile);
   // unit
   String unit_tempUnit = doc["unit_tempUnit"].as<String>();
   if (unit_tempUnit == "fah")
@@ -525,12 +518,10 @@ bool loadOthers()
   {
     return false;
   }
-  std::unique_ptr<char[]> buf(new char[size]);
-
-  configFile.readBytes(buf.get(), size);
+  // Allocate document capacity.
   const size_t capacity = JSON_OBJECT_SIZE(4) + 200;
   DynamicJsonDocument doc(capacity);
-  deserializeJson(doc, buf.get());
+  deserializeJson(doc, configFile);
   // unit
   String unit_tempUnit = doc["unit_tempUnit"].as<String>();
   if (unit_tempUnit == "fah")
@@ -554,10 +545,9 @@ bool loadOthers()
   return true;
 }
 
-void saveMqtt(String mqttFn, String mqttHost, String mqttPort, String mqttUser,
-              String mqttPwd, String mqttTopic)
+void saveMqtt(String mqttFn, const String& mqttHost, String mqttPort, const String& mqttUser, const String& mqttPwd, String mqttTopic)
 {
-
+  // Allocate document capacity.
   const size_t capacity = JSON_OBJECT_SIZE(6) + 400;
   DynamicJsonDocument doc(capacity);
   // if mqtt port is empty, we use default port
@@ -595,6 +585,7 @@ void saveMqtt(String mqttFn, String mqttHost, String mqttPort, String mqttUser,
 
 void saveUnit(String tempUnit, String supportMode, String supportFanMode, String loginPassword, String tempStep, String languageIndex)
 {
+  // Allocate document capacity.
   const size_t capacity = JSON_OBJECT_SIZE(6) + 200;
   DynamicJsonDocument doc(capacity);
   // if temp unit is empty, we use default celcius
@@ -630,8 +621,9 @@ void saveUnit(String tempUnit, String supportMode, String supportFanMode, String
   configFile.close();
 }
 
-void saveWifi(String apSsid, String apPwd, String hostName, String otaPwd)
+void saveWifi(String apSsid, const String& apPwd, String hostName, const String& otaPwd)
 {
+  // Allocate document capacity.
   const size_t capacity = JSON_OBJECT_SIZE(4) + 130;
   DynamicJsonDocument doc(capacity);
   if (hostName.isEmpty())
@@ -651,8 +643,9 @@ void saveWifi(String apSsid, String apPwd, String hostName, String otaPwd)
   configFile.close();
 }
 
-void saveOthers(String haa, String haat, String debugPckts, String debugLogs)
+void saveOthers(const String& haa, const String& haat, const String& debugPckts, const String& debugLogs)
 {
+  // Allocate document capacity.
   const size_t capacity = JSON_OBJECT_SIZE(4) + 130;
   DynamicJsonDocument doc(capacity);
   doc["haa"] = haa;
@@ -1816,7 +1809,7 @@ void handleUploadDone(AsyncWebServerRequest *request)
   }
 }
 
-void handleUploadLoop(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final)
+void handleUploadLoop(AsyncWebServerRequest *request, const String& filename, size_t index, uint8_t *data, size_t len, bool final)
 {
   // Based on https://github.com/lbernstone/asyncUpdate/blob/master/AsyncUpdate.ino
   if (uploaderror)
@@ -1892,7 +1885,7 @@ void handleUploadLoop(AsyncWebServerRequest *request, String filename, size_t in
   }
 }
 
-void write_log(String log)
+void write_log(const String& log)
 {
   File logFile = SPIFFS.open(console_file, "a");
   logFile.println(log);
@@ -3124,7 +3117,7 @@ String getWifiOptions(bool send)
 }
 
 // String  var = getValueBySeparator( StringVar, ',', 2); // if  a,4,D,r  would return D
-String getValueBySeparator(String data, char separator, int index)
+String getValueBySeparator(const String& data, char separator, int index)
 {
   int found = 0;
   int strIndex[] = {0, -1};
