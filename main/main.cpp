@@ -2648,7 +2648,7 @@ void loop()
 #ifdef ESP32
       xTimerStart(mqttReconnectTimer, 0);
 #else
-      mqttReconnectTimer.once(2, mqttConnect);
+      mqttConnect();
 #endif
     }
   }
@@ -2810,7 +2810,7 @@ void onMqttDisconnect(AsyncMqttClientDisconnectReason reason)
 #ifdef ESP32
     xTimerStart(mqttReconnectTimer, 0);
 #else
-    mqttReconnectTimer.once(2, mqttConnect);
+    mqttConnect();
 #endif
   }
 }
