@@ -68,7 +68,7 @@ void hpCheckRemoteTemp();
 void hpPacketDebug(byte *packet, unsigned int length, const char *packetDirection);
 void hpSendLocalState();
 void mqttCallback(char *topic, char *payload, unsigned int length);
-void haConfig();
+void sendHaConfig();
 void mqttConnect();
 bool connectWifi();
 float toFahrenheit(float fromCelcius);
@@ -2047,6 +2047,7 @@ void hpStatusChanged(heatpumpStatus currentStatus)
     float temperature = convertCelsiusToLocalUnit(currentSettings.temperature, useFahrenheit);
     rootInfo["roomTemperature"] = roomTemperature;
     rootInfo["temperature"] = temperature;
+    rootInfo["compressorFreq"] = currentStatus.compressorFrequency;
     events.send(String(roomTemperature).c_str(), "room_temperature", millis(), 50); // send data to browser
     events.send(String(temperature).c_str(), "temperature", millis(), 60);
     if (!(String(currentSettings.fan).isEmpty())) // null may crash with multitask
@@ -2349,7 +2350,64 @@ void mqttCallback(char *topic, char *payload, unsigned int length)
   }
 }
 
-void haConfig()
+void haConfigTemp(String tag, String icon) {
+  // send HA config packet for tempearature sensor
+  const size_t capacity = JSON_ARRAY_SIZE(15) + JSON_OBJECT_SIZE(30) + 150;
+  DynamicJsonDocument haConfig(capacity);
+
+  haConfig["icon"] = icon;
+  haConfig["name"] = tag;
+  haConfig["unique_id"] = String("hvac_") + getId() + "_" + tag;
+
+  haConfig["dev_cla"] = "temperature";
+  haConfig["stat_t"] = ha_state_topic;
+  haConfig["unit_of_meas"] = "°C";
+  haConfig["val_tpl"] = "{{value_json." + tag + "}}";
+
+  JsonObject haConfigDevice = haConfig.createNestedObject("device");
+  haConfigDevice["ids"] = mqtt_fn;
+  haConfigDevice["name"] = mqtt_fn;
+  haConfigDevice["sw"] = String(appName) + " " + String(getAppVersion());
+  haConfigDevice["mdl"] = model;
+  haConfigDevice["mf"] = manufacturer;
+  haConfigDevice["cu"] = "http://" + WiFi.localIP().toString();
+
+  String mqttOutput;
+  serializeJson(haConfig, mqttOutput);
+  String ha_config_topic_sensor = "homeassistant/sensor/hvac_" + getId() + "_" + tag + "/config";
+  mqttClient.publish(ha_config_topic_sensor.c_str(), 1, true, mqttOutput.c_str());
+}
+
+void haConfigFreq(String tag, String unit, String icon) {
+  // send HA config packet for freq sensor
+  const size_t capacity = JSON_ARRAY_SIZE(15) + JSON_OBJECT_SIZE(30) + 150;
+  DynamicJsonDocument haConfig(capacity);
+
+  haConfig["icon"] = icon;
+  haConfig["name"] = tag;
+  haConfig["unique_id"] = String("hvac_") + getId() + "_" + tag;
+
+  haConfig["dev_cla"] = "frequency";
+  haConfig["stat_t"] = ha_state_topic;
+  haConfig["unit_of_meas"] = unit;
+  haConfig["val_tpl"] = "{{value_json." + tag + "}}";
+
+  JsonObject haConfigDevice = haConfig.createNestedObject("device");
+  haConfigDevice["ids"] = mqtt_fn;
+  haConfigDevice["name"] = mqtt_fn;
+  haConfigDevice["sw"] = String(appName) + " " + String(getAppVersion());
+  haConfigDevice["mdl"] = model;
+  haConfigDevice["mf"] = manufacturer;
+
+  haConfigDevice["cu"] = "http://" + WiFi.localIP().toString();
+
+  String mqttOutput;
+  serializeJson(haConfig, mqttOutput);
+  String ha_config_topic_sensor = "homeassistant/sensor/hvac_" + getId() + "_" + tag + "/config";
+  mqttClient.publish(ha_config_topic_sensor.c_str(), 1, true, mqttOutput.c_str());
+}
+
+void sendHaConfig()
 {
 
   // send HA config packet
@@ -2434,6 +2492,11 @@ void haConfig()
   String mqttOutput;
   serializeJson(haConfig, mqttOutput);
   mqttClient.publish(ha_config_topic.c_str(), 1, true, mqttOutput.c_str());
+
+  // Temperature sensors
+  haConfigTemp("roomTemperature", "mdi:thermometer");
+  // Freq sensor
+  haConfigFreq("compressorFreq", "Hz", "mdi:sine-wave");
 }
 
 void mqttConnect()
@@ -2796,7 +2859,7 @@ void onMqttConnect(bool sessionPresent)
   mqttClient.subscribe(ha_custom_packet.c_str(), 1);
   // send online message
   mqttClient.publish(ha_availability_topic.c_str(), 1, true, mqtt_payload_available);
-  haConfig();
+  sendHaConfig();
 }
 
 void onMqttDisconnect(AsyncMqttClientDisconnectReason reason)
