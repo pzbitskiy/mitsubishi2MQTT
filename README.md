@@ -21,7 +21,7 @@ ESP8266/ESP32 module to control Mitsubishi Electric HVAC unit. Support control w
 
 ## Demo Circuit
 
-<img src="https://github.com/dzungpv/mitsubishi2MQTT/blob/master/CN105_ESP8266.png"/>
+<img src="https://github.com/dzungpv/mitsubishi2MQTT/blob/master/hardware/CN105_ESP8266.png"/>
 
 You can also use ESP-32 module for more processing power.
 
