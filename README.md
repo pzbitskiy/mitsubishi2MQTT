@@ -26,7 +26,7 @@ wiki](https://github.com/SwiCago/HeatPump/wiki/Supported-models) has a long conf
 
 The same [`CN105`](https://github.com/dzungpv/mitsubishi2MQTT/blob/master/hardware/CN105.jpg) connector is used by the Mitsubishi KumoCloud remotes, which
 have a
-[compatibility list](https://www.mitsubishicomfort.com/kumocloud/compatibility)
+[compatibility list](https://www.mitsubishicomfort.com/themes/custom/MitsubishiMegaSite/src/pdf/M_Submittal_kumo_cloud.pdf)
 available.
 
 The software and hardware has been tested by the author for 5 years on the following units:
