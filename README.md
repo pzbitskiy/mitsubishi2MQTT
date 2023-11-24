@@ -23,7 +23,7 @@ ESP8266/ESP32 module to control Mitsubishi Electric HVAC unit. Support control w
 
 <img src="https://github.com/dzungpv/mitsubishi2MQTT/blob/master/hardware/CN105_ESP8266.png"/>
 
-You can also use ESP-32 module for more processing power.
+You can also use ESP-32 module for more processing power. If using ESP-32 you can change default pins in config.h, by default app use TX pin 26 and RX pin 27 
 
 ***
 
