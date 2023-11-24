@@ -1,22 +1,54 @@
 **mitsubishi2MQTT**
-Use MQTT and ESP8266/ESP32 module to control Mitsubishi HVAC unit.
-It use SwiCago libraries: https://github.com/SwiCago/HeatPump
+ESP8266/ESP32 module to control Mitsubishi Electric HVAC unit. Support control with Home Assistant, buit-in web app and MQTT.
 
 ***
-## Features:
- - Initial config:  WIFI AP mode and web portal
- - Web interface for configuration, status and control, firmware upgrade
- - Homeassistant autodiscovery and control with MQTT
- - Control with MQTT
- - Multilanguages, user can change in SETUP->UNIT or choose in initial setup
 
 ## Screenshots:
 | ![Main](https://github.com/dzungpv/mitsubishi2MQTT/blob/master/images/main_page.jpeg) | ![Control](https://github.com/dzungpv/mitsubishi2MQTT/blob/master/images/control_page.jpeg) | ![Config](https://github.com/dzungpv/mitsubishi2MQTT/blob/master/images/config_page.jpeg) |
 | --------------------------------------- | --------------------------------------- | --------------------------------------- |                                
 | ![Init](https://github.com/dzungpv/mitsubishi2MQTT/blob/master/images/initial_setup.jpeg) | ![Unit](https://github.com/dzungpv/mitsubishi2MQTT/blob/master/images/unit_page.jpeg) | ![Status](https://github.com/dzungpv/mitsubishi2MQTT/blob/master/images/status_page.jpeg) |
 
+***
+
+## Features:
+ - Initial config: WIFI AP mode and web portal
+ - Web interface for configuration, status and control, firmware upgrade
+ - Homeassistant autodiscovery and control with MQTT
+ - Control with MQTT
+ - Multilanguages, user can change in SETUP->UNIT or choose in initial setup
 
 ***
+
+## Demo Circuit
+
+<img src="https://github.com/dzungpv/mitsubishi2MQTT/blob/master/CN105_ESP8266.png"/>
+
+You can also use ESP-32 module for more processing power.
+
+***
+
+## Parts
+
+### Parts required to make a CN105 female connector
+
+- PAP-05V-S CONN HOUSING PA 5POS 2MM WHITE 
+    - Digi-Key Part Number 	455-1489-ND 
+    - <https://www.digikey.com/product-detail/en/jst-sales-america-inc/PAP-05V-S/455-1489-ND/759977>
+- SPHD-002T-P0.5  CONN TERM PHD CRIMP 24-28AWG TIN  
+    - Digi-Key Part Number 	455-1313-1-ND
+    - <https://www.digikey.com/product-detail/en/jst-sales-america-inc/SPHD-002T-P0.5/455-1313-1-ND/608809>
+- JUMPER SPHD-001T-P0.5 X2 12" (pre-crimped alternative to 455-1313-1-ND connectors)
+    - Digi-Key Part Number    455-3086-ND
+    - <https://www.digikey.co.uk/product-detail/en/jst-sales-america-inc/APAPA22K305/455-3086-ND/6009462>
+
+### Other part suggestions
+
+- Premade pigtails
+    - <https://m.aliexpress.com/item/1005002904897793.html> select 5P option
+- ESP-8266 Wemos D1 Mini
+    - <https://m.aliexpress.com/item/1005005121150737.htm>
+***
+
 ## How to use:
  - Step 1: Flash the sketch with flash size include SPIFFS option.
  - Step 2: Connect to device AP with name HVAC-XXXXXXXXXXXX (XXXX... 12 character MAC address)
@@ -28,13 +60,16 @@ It use SwiCago libraries: https://github.com/SwiCago/HeatPump
  - Step 8: (optional): Turn off heat mode or quiet mode in SETUP->UNIT
 
 Nightly builds are available for select platforms via GitHub Actions. Go to [the workflow](https://github.com/dzungpv/mitsubishi2MQTT/actions/workflows/build.yml), select the latest build, then check the **Artifacts** section. 
-***
-## How to build:
-  - Arduino: Intall require libraries, rename file main.cpp in main folder to main.ino, open it and build
-  - Platformio: Install, open it and choose a variant to build
-  - ESP IDF: clone the project with --recursive tag, install [ESP IDF 4.4.6 ](https://docs.espressif.com/projects/esp-idf/en/v4.4/esp32/get-started/index.html) set the target and run command: idf.py build
 
 ***
+
+## How to build code from source:
+  - ESP IDF (Recomended): clone the project with --recursive tag: ```git clone https://github.com/dzungpv/mitsubishi2MQTT.git --recursive```, Install [ESP IDF 4.4.6 ](https://docs.espressif.com/projects/esp-idf/en/v4.4/esp32/get-started/index.html) set the target and run command: idf.py build
+  - Arduino: Intall require libraries (name and path in platformio.ini), rename file main.cpp in main folder to main.ino, open it and build
+  - Platformio: Install, open it and choose a variant to build
+
+***
+
 ## MQTT topic use cases
 - topic/power/set OFF
 - topic/mode/set AUTO HEAT COOL DRY FAN_ONLY OFF ON
@@ -51,5 +86,24 @@ Nightly builds are available for select platforms via GitHub Actions. Go to [the
 - topic/debug/logs/set on off
 - topic/custom/send as example "fc 42 01 30 10 02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 7b " see https://github.com/SwiCago/HeatPump/blob/master/src/HeatPump.h
 - topic/system/set reboot 
+***
+
+## Special thanks
+SwiCago for the great libraries: https://github.com/SwiCago/HeatPump
+
+Hadley in New Zealand. His blog post, describing baud rate and details of cn105, Raspberry Pi Python code:
+
+<https://nicegear.co.nz/blog/hacking-a-mitsubishi-heat-pump-air-conditioner/>
+
+Wayback machine link as the site no longer exists:
+<https://web.archive.org/web/20171007190023/https://nicegear.co.nz/blog/hacking-a-mitsubishi-heat-pump-air-conditioner/>
+
+***
+
+## License
+
+Licensed under the GNU Lesser General Public License.
+https://www.gnu.org/licenses/lgpl-3.0.txt
+
 ***
 If you like my work and use it, give a star.
