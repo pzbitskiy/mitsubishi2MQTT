@@ -19,12 +19,29 @@ ESP8266/ESP32 module to control Mitsubishi Electric HVAC unit. Support control w
 
 ***
 
+## Supported Mitsubishi Electrict Units
+Basically, if the unit has a [`CN105`](https://github.com/dzungpv/mitsubishi2MQTT/blob/master/hardware/CN105.jpg) header on the main board, it should
+work. The [HeatPump
+wiki](https://github.com/SwiCago/HeatPump/wiki/Supported-models) has a long confirmed list.
+
+The same [`CN105`](https://github.com/dzungpv/mitsubishi2MQTT/blob/master/hardware/CN105.jpg) connector is used by the Mitsubishi KumoCloud remotes, which
+have a
+[compatibility list](https://www.mitsubishicomfort.com/kumocloud/compatibility)
+available.
+
+The software and hardware has been tested by the author for 5 years on the following units:
+* `MSZ-HL25VA`
+* `MSZ-GE25VA`
+* `MSY-GM24VA`
+
 ## Demo Circuit
 
 <img src="https://github.com/dzungpv/mitsubishi2MQTT/blob/master/hardware/CN105_ESP8266.png"/>
 
-You can also use ESP-32 module for more processing power. If using ESP-32 you can change default pins in config.h, by default app use TX pin 26 and RX pin 27 
+This circuit using by the author, here is some [boards](https://github.com/dzungpv/mitsubishi2MQTT/blob/master/hardware/Before_Install.jpg) before install.
 
+You can also use ESP-32 module for more processing power. If using ESP-32 you can change default pins in config.h, by default app use TX pin 26 and RX pin 27 
+You can see more pictures in [`hardware`](https://github.com/dzungpv/mitsubishi2MQTT/tree/master/hardware) folder.
 ***
 
 ## Parts
