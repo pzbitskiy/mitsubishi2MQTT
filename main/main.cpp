@@ -2615,9 +2615,10 @@ String getId()
   snprintf(chipID, 23, "%llX", ESP.getEfuseMac());
   return String(chipID);
 #else
-  uint32_t chipID = ESP.getChipId();
+  String chipID = WiFi.macAddress();
+  chipID.replace(":", "");
+  return chipID;
 #endif
-  return String(chipID, HEX);
 }
 
 // Check if header is present and correct
