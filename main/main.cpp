@@ -1409,7 +1409,10 @@ void handleControl(AsyncWebServerRequest *request)
   controlPage.replace("_TXT_F_COOL_", translatedWord(FL_(txt_f_cool)));
   controlPage.replace("_TXT_F_FAN_", translatedWord(FL_(txt_f_fan)));
   controlPage.replace("_TXT_F_QUIET_", translatedWord(FL_(txt_f_quiet)));
-  controlPage.replace("_TXT_F_SPEED_", translatedWord(FL_(txt_f_speed)));
+  controlPage.replace("_TXT_F_LOW_", translatedWord(FL_(txt_f_low)));
+  controlPage.replace("_TXT_F_MEDIUM_", translatedWord(FL_(txt_f_medium)));
+  controlPage.replace("_TXT_F_MIDDLE_", translatedWord(FL_(txt_f_middle)));
+  controlPage.replace("_TXT_F_HIGH_", translatedWord(FL_(txt_f_high)));
   controlPage.replace("_TXT_F_SWING_", translatedWord(FL_(txt_f_swing)));
   controlPage.replace("_TXT_F_POS_", translatedWord(FL_(txt_f_pos)));
   controlPage.replace("_TXT_BACK_", translatedWord(FL_(txt_back)));
