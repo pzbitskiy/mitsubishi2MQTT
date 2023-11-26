@@ -89,6 +89,10 @@ MAKE_WORD_TRANSLATION(txt_f_fh, en::txt_f_fh, vi::txt_f_fh, da::txt_f_fh, de::tx
 MAKE_WORD_TRANSLATION(txt_f_allmodes, en::txt_f_allmodes, vi::txt_f_allmodes, da::txt_f_allmodes, de::txt_f_allmodes, es::txt_f_allmodes, fr::txt_f_allmodes, it::txt_f_allmodes, ja::txt_f_allmodes, zh::txt_f_allmodes)           // TODO translate
 MAKE_WORD_TRANSLATION(txt_f_noheat, en::txt_f_noheat, vi::txt_f_noheat, da::txt_f_noheat, de::txt_f_noheat, es::txt_f_noheat, fr::txt_f_noheat, it::txt_f_noheat, ja::txt_f_noheat, zh::txt_f_noheat)           // TODO translate
 MAKE_WORD_TRANSLATION(txt_f_noquiet, en::txt_f_noquiet, vi::txt_f_noquiet, da::txt_f_noquiet, de::txt_f_noquiet, es::txt_f_noquiet, fr::txt_f_noquiet, it::txt_f_noquiet, ja::txt_f_noquiet, zh::txt_f_noquiet) // TODO translate
+MAKE_WORD_TRANSLATION(txt_f_low, en::txt_f_low, vi::txt_f_low, da::txt_f_low, de::txt_f_low, es::txt_f_low, fr::txt_f_low, it::txt_f_low, ja::txt_f_low, zh::txt_f_low)                                                   // TODO translate
+MAKE_WORD_TRANSLATION(txt_f_medium, en::txt_f_medium, vi::txt_f_medium, da::txt_f_medium, de::txt_f_medium, es::txt_f_medium, fr::txt_f_medium, it::txt_f_medium, ja::txt_f_medium, zh::txt_f_medium)                     // TODO translate
+MAKE_WORD_TRANSLATION(txt_f_middle, en::txt_f_middle, vi::txt_f_middle, da::txt_f_middle, de::txt_f_middle, es::txt_f_middle, fr::txt_f_middle, it::txt_f_middle, ja::txt_f_middle, zh::txt_f_middle)                     // TODO translate
+MAKE_WORD_TRANSLATION(txt_f_high, en::txt_f_high, vi::txt_f_high, da::txt_f_high, de::txt_f_high, es::txt_f_high, fr::txt_f_high, it::txt_f_high, ja::txt_f_high, zh::txt_f_high)                                         // TODO translate
 
 // Page Reboot, save & Resseting
 MAKE_WORD_TRANSLATION(txt_m_reboot, en::txt_m_reboot, vi::txt_m_reboot, da::txt_m_reboot, de::txt_m_reboot, es::txt_m_reboot, fr::txt_m_reboot, it::txt_m_reboot, ja::txt_m_reboot, zh::txt_m_reboot)           // TODO translate

@@ -61,6 +61,10 @@ namespace it
   const char txt_f_allmodes[] PROGMEM = "Tutte le modalità";
   const char txt_f_noheat[] PROGMEM = "Tutte le modalità escluso riscaldamento";
   const char txt_f_noquiet[] PROGMEM = "Not support quiet mode";
+  const char txt_f_low[] PROGMEM = "LOW";
+  const char txt_f_medium[] PROGMEM = "MEDIUM";
+  const char txt_f_middle[] PROGMEM = "MIDDLE";
+  const char txt_f_high[] PROGMEM = "HIGH";
 
   // Page Reboot, save & Resseting
   const char txt_m_reboot[] PROGMEM = "Riavvio... Refresh in";

@@ -61,6 +61,10 @@ namespace ja
   const char txt_f_allmodes[] PROGMEM = "全ての機能";
   const char txt_f_noheat[] PROGMEM = "暖房以外の全ての機能";
   const char txt_f_noquiet[] PROGMEM = "Not support quiet mode";
+  const char txt_f_low[] PROGMEM = "LOW";
+  const char txt_f_medium[] PROGMEM = "MEDIUM";
+  const char txt_f_middle[] PROGMEM = "MIDDLE";
+  const char txt_f_high[] PROGMEM = "HIGH";
 
   // Page Reboot, save & Resseting
   const char txt_m_reboot[] PROGMEM = "再起動中";

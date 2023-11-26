@@ -65,6 +65,10 @@ namespace de
   const char txt_f_allmodes[] PROGMEM = "jeder Modus";
   const char txt_f_noheat[] PROGMEM = "jeder Modus, außer heizen";
   const char txt_f_noquiet[] PROGMEM = "Not support quiet mode";
+  const char txt_f_low[] PROGMEM = "LOW";
+  const char txt_f_medium[] PROGMEM = "MEDIUM";
+  const char txt_f_middle[] PROGMEM = "MIDDLE";
+  const char txt_f_high[] PROGMEM = "HIGH";
 
   // Page Reboot, save & Resseting
   const char txt_m_reboot[] PROGMEM = "Neustart... Aktualisierung in";

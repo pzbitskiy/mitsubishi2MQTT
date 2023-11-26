@@ -111,6 +111,8 @@ String getCurrentTime();
 void tick(); // led blink tick
 void factoryReset();
 void otaUpdateProgress(size_t prg, size_t sz);
+String getFanModeFromHa(String modeFromHa);
+String getFanModeFromHp(String modeFromHp);
 // End  header for build with IDF and Platformio
 
 #ifdef ESP8266
@@ -264,7 +266,7 @@ void setup()
     heatpumpSettings currentSettings = hp.getSettings();
     rootInfo["roomTemperature"] = convertCelsiusToLocalUnit(currentStatus.roomTemperature, useFahrenheit);
     rootInfo["temperature"] = convertCelsiusToLocalUnit(currentSettings.temperature, useFahrenheit);
-    rootInfo["fan"] = currentSettings.fan;
+    rootInfo["fan"] = getFanModeFromHp(currentSettings.fan);
     rootInfo["vane"] = currentSettings.vane;
     rootInfo["wideVane"] = currentSettings.wideVane;
     rootInfo["mode"] = hpGetMode(currentSettings);
@@ -1955,7 +1957,7 @@ void readHeatPumpSettings()
 
   rootInfo.clear();
   rootInfo["temperature"] = convertCelsiusToLocalUnit(currentSettings.temperature, useFahrenheit);
-  rootInfo["fan"] = currentSettings.fan;
+  rootInfo["fan"] = getFanModeFromHp(currentSettings.fan);
   rootInfo["vane"] = currentSettings.vane;
   rootInfo["wideVane"] = currentSettings.wideVane;
   rootInfo["mode"] = hpGetMode(currentSettings);
@@ -1976,6 +1978,64 @@ void hpSettingsChanged()
   }
 
   hpStatusChanged(hp.getStatus());
+}
+
+// Convert mode for home assistant
+String getFanModeFromHp(String modeFromHp)
+{
+  if (modeFromHp == "QUIET")
+  {
+    return "diffuse";
+  }
+  else if (modeFromHp == "1")
+  {
+    return "low";
+  }
+  else if (modeFromHp == "2")
+  {
+    return "medium";
+  }
+  else if (modeFromHp == "3")
+  {
+    return "middle";
+  }
+  else if (modeFromHp == "4")
+  {
+    return "high";
+  }
+  else
+  { // case "AUTO" or default:
+    return "auto";
+  }
+}
+
+// Convert mode for heatpump lib
+String getFanModeFromHa(String modeFromHa)
+{
+  if (modeFromHa == "diffuse")
+  {
+    return "QUIET";
+  }
+  else if (modeFromHa == "low")
+  {
+    return "1";
+  }
+  else if (modeFromHa == "medium")
+  {
+    return "2";
+  }
+  else if (modeFromHa == "middle")
+  {
+    return "3";
+  }
+  else if (modeFromHa == "high")
+  {
+    return "4";
+  }
+  else
+  { // case "AUTO" or default:
+    return "AUTO";
+  }
 }
 
 String hpGetMode(heatpumpSettings hpSettings)
@@ -2052,7 +2112,7 @@ void hpStatusChanged(heatpumpStatus currentStatus)
     events.send(String(temperature).c_str(), "temperature", millis(), 60);
     if (!(String(currentSettings.fan).isEmpty())) // null may crash with multitask
     {
-      rootInfo["fan"] = currentSettings.fan;
+      rootInfo["fan"] = getFanModeFromHp(currentSettings.fan);
       events.send(currentSettings.fan, "fan", millis(), 70);
     }
     if (!(String(currentSettings.vane).isEmpty()))
@@ -2238,7 +2298,7 @@ void mqttCallback(char *topic, char *payload, unsigned int length)
   }
   else if (strcmp(topic, ha_fan_set_topic.c_str()) == 0)
   {
-    rootInfo["fan"] = message;
+    rootInfo["fan"] = getFanModeFromHa(message);
     hpSendLocalState();
     hp.setFanSpeed(message);
     update = true;
@@ -2454,16 +2514,17 @@ void sendHaConfig()
   haConfig["temperature_unit"] = useFahrenheit ? "F" : "C";
 
   JsonArray haConfigFan_modes = haConfig.createNestedArray("fan_modes");
-  haConfigFan_modes.add("AUTO");
-  haConfigFan_modes.add("QUIET");
-  haConfigFan_modes.add("1");
-  haConfigFan_modes.add("2");
-  haConfigFan_modes.add("3");
-  haConfigFan_modes.add("4");
+  haConfigFan_modes.add("auto");  //AUTO
+  haConfigFan_modes.add("diffuse"); //QUIET
+  haConfigFan_modes.add("low"); //1 native
+  haConfigFan_modes.add("medium"); //2 native
+  haConfigFan_modes.add("middle"); //3 native
+  haConfigFan_modes.add("high"); //4 native
+
 
   haConfig["fan_mode_cmd_t"] = ha_fan_set_topic;
   haConfig["fan_mode_stat_t"] = ha_state_topic;
-  haConfig["fan_mode_stat_tpl"] = F("{{ value_json.fan if (value_json is defined and value_json.fan is defined and value_json.fan|length) else 'AUTO' }}"); // Set default value for fix "Could not parse data for HA"
+  haConfig["fan_mode_stat_tpl"] = F("{{ value_json.fan if (value_json is defined and value_json.fan is defined and value_json.fan|length) else 'auto' }}"); // Set default value for fix "Could not parse data for HA"
 
   JsonArray haConfigSwing_modes = haConfig.createNestedArray("swing_modes");
   haConfigSwing_modes.add("AUTO");

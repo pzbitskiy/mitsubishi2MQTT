@@ -61,6 +61,10 @@ namespace zh
   const char txt_f_allmodes[] PROGMEM = "全部模式";
   const char txt_f_noheat[] PROGMEM = "除制暖外全部模式";
   const char txt_f_noquiet[] PROGMEM = "Not support quiet mode";
+  const char txt_f_low[] PROGMEM = "LOW";
+  const char txt_f_medium[] PROGMEM = "MEDIUM";
+  const char txt_f_middle[] PROGMEM = "MIDDLE";
+  const char txt_f_high[] PROGMEM = "HIGH";
 
   // Page Reboot, save & Resseting
   const char txt_m_reboot[] PROGMEM = "重启中... 刷新";

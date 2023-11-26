@@ -52,7 +52,7 @@ namespace vi
   const char txt_f_dry[] PROGMEM = "KHÔ";
   const char txt_f_cool[] PROGMEM = "MÁT";
   const char txt_f_fan[] PROGMEM = "QUẠT";
-  const char txt_f_quiet[] PROGMEM = "IM LẶNG";
+  const char txt_f_quiet[] PROGMEM = "THOẢNG";
   const char txt_f_speed[] PROGMEM = "TỐC ĐỘ";
   const char txt_f_swing[] PROGMEM = "TẢN";
   const char txt_f_pos[] PROGMEM = "VỊ TRÍ";
@@ -61,6 +61,10 @@ namespace vi
   const char txt_f_allmodes[] PROGMEM = "Tất cả chế độ";
   const char txt_f_noheat[] PROGMEM = "Tất cả chế độ trừ Sưởi";
   const char txt_f_noquiet[] PROGMEM = "Không có chế độ Im lặng";
+  const char txt_f_low[] PROGMEM = "THẤP";
+  const char txt_f_medium[] PROGMEM = "TRUNG";
+  const char txt_f_middle[] PROGMEM = "GIỮA";
+  const char txt_f_high[] PROGMEM = "CAO";
 
   // Page Reboot, save & Resseting
   const char txt_m_reboot[] PROGMEM = "Đang khởi động lại... Làm mới trong";

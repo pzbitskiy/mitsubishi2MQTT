@@ -51,7 +51,7 @@ namespace da
   const char txt_f_dry[] PROGMEM = "DRY";
   const char txt_f_cool[] PROGMEM = "COOL";
   const char txt_f_fan[] PROGMEM = "FAN";
-  const char txt_f_quiet[] PROGMEM = "QUIET";
+  const char txt_f_quiet[] PROGMEM = "DIFFUSE";
   const char txt_f_speed[] PROGMEM = "SPEED";
   const char txt_f_swing[] PROGMEM = "SWING";
   const char txt_f_pos[] PROGMEM = "POSITION";
@@ -60,6 +60,10 @@ namespace da
   const char txt_f_allmodes[] PROGMEM = "All modes";
   const char txt_f_noheat[] PROGMEM = "All modes execept heat";
   const char txt_f_noquiet[] PROGMEM = "Not support quiet mode";
+  const char txt_f_low[] PROGMEM = "LOW";
+  const char txt_f_medium[] PROGMEM = "MEDIUM";
+  const char txt_f_middle[] PROGMEM = "MIDDLE";
+  const char txt_f_high[] PROGMEM = "HIGH";
 
   // Page Reboot, save & Resseting
   const char txt_m_reboot[] PROGMEM = "Rebooting... Refresh in";
