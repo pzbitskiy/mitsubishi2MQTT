@@ -2298,9 +2298,9 @@ void mqttCallback(char *topic, char *payload, unsigned int length)
   }
   else if (strcmp(topic, ha_fan_set_topic.c_str()) == 0)
   {
-    rootInfo["fan"] = getFanModeFromHa(message);
+    rootInfo["fan"] = message;
     hpSendLocalState();
-    hp.setFanSpeed(message);
+    hp.setFanSpeed(getFanModeFromHa(message).c_str());
     update = true;
   }
   else if (strcmp(topic, ha_vane_set_topic.c_str()) == 0)
