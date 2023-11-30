@@ -151,7 +151,6 @@ unsigned long wifi_timeout;
 unsigned long wifi_reconnect_timeout;
 unsigned long mqtt_reconnect_timeout;
 
-bool wifi_config_exists;
 String hostname = "";
 String ap_ssid;
 String ap_pwd;

@@ -149,7 +149,7 @@ void setup()
   pinMode(blueLedPin, OUTPUT);
   ticker.attach(1, tick); // every seconds
   setDefaults();
-  wifi_config_exists = loadWifi();
+  wifi_config = loadWifi();
   if (hostname.isEmpty())
   {
     // set default hostname
@@ -820,7 +820,7 @@ boolean initWifi()
     wifiConnectHandler = WiFi.onStationModeGotIP(onWifiConnect);
     wifiDisconnectHandler = WiFi.onStationModeDisconnected(onWifiDisconnect); // timer for esp8266 AsyncMqttClient
 #endif
-    connectWifiSuccess = wifi_config = connectWifi();
+    connectWifiSuccess = connectWifi();
     if (connectWifiSuccess)
     {
       return true;
@@ -855,7 +855,6 @@ boolean initWifi()
   WiFi.softAPConfig(apIP, apIP, netMsk);
   ESP_LOGE(TAG, "IP address: %s", WiFi.softAPIP().toString().c_str());
   ticker.attach(0.2, tick); // Start LED to flash rapidly to indicate we are ready for setting up the wifi-connection (entered captive portal).
-  wifi_config = false;
   WiFi.scanNetworks(true);
   delay(2000); // VERY IMPORTANT
   return false;
@@ -934,7 +933,7 @@ void handleReboot(AsyncWebServerRequest *request)
   // localize
   initRebootPage.replace("_TXT_INIT_REBOOT_", translatedWord(FL_(txt_init_reboot)));
   sendWrappedHTML(request, initRebootPage);
-  sendRebootRequest(1); // Reboot after 1 seconds
+  sendRebootRequest(3); // Reboot after 3 seconds
 }
 
 void handleRoot(AsyncWebServerRequest *request)
@@ -947,7 +946,7 @@ void handleRoot(AsyncWebServerRequest *request)
     // localize
     rebootPage.replace("_TXT_M_REBOOT_", translatedWord(FL_(txt_m_reboot)));
     sendWrappedHTML(request, rebootPage + countDown);
-    sendRebootRequest(1); // Reboot after 1 seconds
+    sendRebootRequest(3); // Reboot after 3 seconds
   }
   else
   {
@@ -2622,6 +2621,9 @@ bool connectWifi()
   ticker.detach(); // Stop blinking the LED because now we are connected:)
   // keep LED off (For Wemos D1-Mini)
   digitalWrite(blueLedPin, LOW);
+  // Auto reconnected
+  WiFi.setAutoReconnect(true);
+  WiFi.persistent(true);
   return true;
 }
 
@@ -2738,9 +2740,9 @@ void loop()
     // ESP_LOGD(TAG, "Reset wifi connect timeout");
     wifi_timeout = millis() + WIFI_RETRY_INTERVAL_MS;
   }
-  else if (wifi_config_exists and millis() > wifi_timeout)
+  else if (wifi_config and millis() > wifi_timeout)
   {
-    sendRebootRequest(0);
+    sendRebootRequest(3);
   }
   // Sync HVAC UNIT even if mqtt not connected
   if (!captive)
@@ -2807,11 +2809,8 @@ void checkRebootRequest()
   {
     requestReboot = false;
     requestRebootTime = 0;
-#ifdef ESP32
+    ESP_LOGD(TAG, "Wifi connect timeout, restart device");
     ESP.restart();
-#else
-    ESP.reset();
-#endif
   }
 }
 
