@@ -2373,6 +2373,11 @@ void mqttCallback(char *topic, char *payload, unsigned int length)
     { // We receive reboot command
       sendRebootRequest(3);
     }
+    else if ((strcmp(message, "factory") == 0) and !requestReboot) // factory reset
+    {
+      sendRebootRequest(5);
+      factoryReset();
+    }
   }
   else if (strcmp(topic, ha_custom_packet.c_str()) == 0)
   { // send custom packet for advance user

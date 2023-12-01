@@ -44,6 +44,11 @@ You can also use ESP-32 module for more processing power. If using ESP-32 you ca
 You can see more pictures in [`hardware`](https://github.com/dzungpv/mitsubishi2MQTT/tree/master/hardware) folder.
 ***
 
+## Attention:
+:warning: You have to open the indoor unit to have access to the `CN105` port. You should disconnected the main power before install the module. 
+Faulty handling may cause leakage of water, electric shock or fire! :warning:
+***
+
 ## Parts
 
 ### Parts required to make a CN105 female connector
@@ -88,6 +93,7 @@ Nightly builds are available for select platforms via GitHub Actions. Go to [the
 ***
 
 ## MQTT topic use cases
+The `topic` is: "mqtt_topic/mqtt_friendly_name"
 - topic/power/set OFF
 - topic/mode/set AUTO HEAT COOL DRY FAN_ONLY OFF ON
 - topic/temp/set 16-31
@@ -102,7 +108,7 @@ Nightly builds are available for select platforms via GitHub Actions. Go to [the
 - topic/debug/logs
 - topic/debug/logs/set on off
 - topic/custom/send as example "fc 42 01 30 10 02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 7b " see https://github.com/SwiCago/HeatPump/blob/master/src/HeatPump.h
-- topic/system/set reboot 
+- topic/system/set to control the device with commands: "restart": reboot the device, "factory": reset device to fatory state.
 ***
 
 ## Special thanks
