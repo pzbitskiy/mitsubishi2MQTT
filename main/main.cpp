@@ -2742,7 +2742,8 @@ void loop()
   }
   else if (wifi_config and millis() > wifi_timeout)
   {
-    sendRebootRequest(3);
+    ESP_LOGD(TAG, "Wifi connect timeout, restart device now");
+    ESP.restart();
   }
   // Sync HVAC UNIT even if mqtt not connected
   if (!captive)
@@ -2801,6 +2802,7 @@ void sendRebootRequest(unsigned long nextSeconds)
 {
   requestReboot = true;
   requestRebootTime = millis() + nextSeconds * 1000L;
+  ESP_LOGI(TAG, "Send Reboot Request");
 }
 
 void checkRebootRequest()
@@ -2809,7 +2811,7 @@ void checkRebootRequest()
   {
     requestReboot = false;
     requestRebootTime = 0;
-    ESP_LOGD(TAG, "Wifi connect timeout, restart device");
+    ESP_LOGI(TAG, "Restart device from request");
     ESP.restart();
   }
 }
@@ -2820,6 +2822,7 @@ void checkHpUpdateRequest()
   {
     requestHpUpdate = false;
     requestHpUpdateTime = 0;
+    ESP_LOGI(TAG, "Update HP from request");
     hp.update();
   }
 }
