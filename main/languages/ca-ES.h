@@ -13,7 +13,7 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-namespace en
+namespace ca
 {
   // Breadcum
   const char txt_setup_page[] PROGMEM = "Pàgina de configuració";
@@ -30,8 +30,8 @@ namespace en
   const char txt_reboot[] PROGMEM = "Reinicia";
 
   // Setup Menu
-  const char txt_MQTT[] PROGMEM = "MQTT";
-  const char txt_WIFI[] PROGMEM = "WIFI";
+  const char txt_mqtt[] PROGMEM = "MQTT";
+  const char txt_wifi[] PROGMEM = "WIFI";
   const char txt_unit[] PROGMEM = "Unitat";
   const char txt_others[] PROGMEM = "Altres";
   const char txt_reset[] PROGMEM = "Restableix la configuració";
@@ -169,7 +169,7 @@ namespace en
   const char txt_upload_aborted[] PROGMEM = "S'ha interromput la pujada";
   const char txt_upload_code[] PROGMEM = "Codi d'error de pujada ";
   const char txt_upload_error[] PROGMEM = "Codi d'error de pujada (vegeu Updater.cpp) ";
-  const char txt_upload_sucess[] PROGMEM = "Correcte";
+  const char txt_upload_success[] PROGMEM = "Correcte";
   const char txt_upload_refresh[] PROGMEM = "Refresca en";
 
   // Page Init  
