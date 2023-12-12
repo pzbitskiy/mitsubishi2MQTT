@@ -24,6 +24,7 @@
 #include "languages/it-IT.h" // Italian
 #include "languages/ja-JP.h" // Papanese
 #include "languages/zh-CN.h" // Chinese
+#include "languages/ca-ES.h" // Catalan
 
 #pragma once
 
@@ -37,8 +38,9 @@
 #define MITSU2MQTT_LOCALE_IT "it"
 #define MITSU2MQTT_LOCALE_JA "ja"
 #define MITSU2MQTT_LOCALE_ZH "zh"
+#define MITSU2MQTT_LOCALE_CA "ca"
 
-// IMPORTANT! translations are in the order: en, vi, de, es, fr, it, ja, zh
+// IMPORTANT! translations are in the order: en, vi, de, es, fr, it, ja, zh, ca
 //
 // if there is no translation, it will default to en
 //

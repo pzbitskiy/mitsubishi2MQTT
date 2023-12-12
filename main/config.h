@@ -260,7 +260,8 @@ const char *const languages[] = {
     MITSU2MQTT_LOCALE_FR,
     MITSU2MQTT_LOCALE_IT,
     MITSU2MQTT_LOCALE_JA,
-    MITSU2MQTT_LOCALE_ZH
+    MITSU2MQTT_LOCALE_ZH,
+    MITSU2MQTT_LOCALE_CA
 };
 const char *const language_names[] = {
     "English",
@@ -271,7 +272,8 @@ const char *const language_names[] = {
     "Français",
     "Italiano",
     "日本語",
-    "中文"
+    "中文",
+    "Català"
 };
 #endif
 
