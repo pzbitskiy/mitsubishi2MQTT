@@ -100,7 +100,7 @@ The `topic` is: "mqtt_topic/mqtt_friendly_name"
 - topic/remote_temp/set also called "room_temp", the implementation defined in "HeatPump" seems not work in some models
 - topic/fan/set 1-4 AUTO QUIET
 - topic/vane/set 1-5 SWING AUTO
-- topic/wideVane/set << < | > >>
+- topic/wide-vane/set << < | > >>
 - topic/settings
 - topic/state
 - topic/debug/packets
