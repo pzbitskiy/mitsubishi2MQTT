@@ -82,9 +82,9 @@ namespace ca
   const char txt_mqtt_user[] PROGMEM = "Usuari";
   const char txt_mqtt_password[] PROGMEM = "Contrasenya";
   const char txt_mqtt_topic[] PROGMEM = "Tema";
-  const char txt_mqtt_ph_topic[] PROGMEM = "Introduïu tema Mqtt";
-  const char txt_mqtt_ph_user[] PROGMEM = "Introduïu usuari Mqtt";
-  const char txt_mqtt_ph_pwd[] PROGMEM = "Introduïu contrasenya Mqtt";
+  const char txt_mqtt_ph_topic[] PROGMEM = "Introduïu el tema Mqtt";
+  const char txt_mqtt_ph_user[] PROGMEM = "Introduïu l'usuari Mqtt";
+  const char txt_mqtt_ph_pwd[] PROGMEM = "Introduïu la contrasenya Mqtt";
 
   // Page Others
   const char txt_others_title[] PROGMEM = "Altra configuració";
