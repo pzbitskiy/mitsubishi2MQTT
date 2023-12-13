@@ -40,7 +40,8 @@ The software and hardware has been tested by the author for 5 years on the follo
 
 This circuit using by the author, here is some [boards](https://github.com/dzungpv/mitsubishi2MQTT/blob/master/hardware/Before_Install.jpg) before install.
 
-You can also use ESP-32 module for more processing power. If using ESP-32 you can change default pins in config.h, by default app use TX pin 26 and RX pin 27 
+You can also use ESP-32 module for more processing power. If using ESP-32 by default app use Serial (serial 0 port).
+You can assign any compatible pin in the SETUP->OTHERS to use custom pin, example TX: 26, RX: 27, check ESP-32 manual for pin, when TX and RX set it will use Serial2 port. 
 You can see more pictures in [`hardware`](https://github.com/dzungpv/mitsubishi2MQTT/tree/master/hardware) folder.
 ***
 

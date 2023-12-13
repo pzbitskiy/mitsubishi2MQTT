@@ -92,6 +92,8 @@ namespace en
   const char txt_others_hatopic[] PROGMEM = "Autodiscovery topic";
   const char txt_others_debug_packets[] PROGMEM = "MQTT debug packets";
   const char txt_others_debug_log[] PROGMEM = "MQTT debug logs";
+  const char txt_others_tx_pin[] PROGMEM = "TX pin (ESP32, 0 use Serial)";
+  const char txt_others_rx_pin[] PROGMEM = "RX pin (ESP32, 0 use Serial)";
 
   // Page Status
   const char txt_status_title[] PROGMEM = "Status";

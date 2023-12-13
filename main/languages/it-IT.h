@@ -92,7 +92,9 @@ namespace it
   const char txt_others_hatopic[] PROGMEM = "HA Autodiscovery topic";
   const char txt_others_debug_packets[] PROGMEM = "MQTT topic debug packets";
   const char txt_others_debug_log[] PROGMEM = "MQTT topic debug logs";
-
+  const char txt_others_tx_pin[] PROGMEM = "TX pin (ESP32, 0 use Serial)";
+  const char txt_others_rx_pin[] PROGMEM = "RX pin (ESP32, 0 use Serial)";
+  
   // Page Status
   const char txt_status_title[] PROGMEM = "Stato";
   const char txt_status_hvac[] PROGMEM = "Stato HVAC";

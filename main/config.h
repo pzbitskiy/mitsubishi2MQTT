@@ -120,9 +120,9 @@ unsigned lastWifiScanMillis;
 const PROGMEM char *m2mqtt_version = "2023.12.2";
 
 // Define global variables for files
+int HP_TX = 0; // variable for the ESP32 custom TX pin, 0 is the defautl and it use hardware serial 0
+int HP_RX = 0; // variable for the ESP32 custom RX pin, 0 is the defautl and it use hardware serial 0
 #ifdef ESP32
-#define HP_TX 26 // define the ESP32 custom TX pin
-#define HP_RX 27 // define the ESP32 custom RX pin
 const PROGMEM char *wifi_conf = "/wifi.json";
 const PROGMEM char *mqtt_conf = "/mqtt.json";
 const PROGMEM char *unit_conf = "/unit.json";

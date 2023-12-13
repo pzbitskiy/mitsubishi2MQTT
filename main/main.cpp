@@ -30,9 +30,9 @@ bool loadMqtt();
 bool loadUnit();
 bool loadOthers();
 void saveMqtt(String mqttFn, const String& mqttHost, String mqttPort, const String& mqttUser, const String& mqttPwd, String mqttTopic);
-void saveUnit(String tempUnit, String supportMode, String loginPassword, String tempStep, String languageIndex);
+void saveUnit(String tempUnit, String supportMode, String supportFanMode, String loginPassword, String tempStep, String languageIndex);
 void saveWifi(String apSsid, const String& apPwd, String hostName, const String& otaPwd);
-void saveOthers(const String& haa, const String& haat, const String& debugPckts, const String& debugLogs);
+void saveOthers(const String& haa, const String& haat, const String& debugPckts, const String& debugLogs, const String& txPin, const String& rxPin);
 void saveCurrentOthers();
 void initCaptivePortal();
 void initMqtt();
@@ -257,8 +257,15 @@ void setup()
     // Allow Remote/Panel
     hp.enableExternalUpdate();
     hp.enableAutoUpdate();
-#if defined(ESP32) && defined(HP_TX) && defined(HP_RX)
-    hp.connect(&Serial2, HP_RX, HP_TX);
+#if defined(ESP32)
+    if (HP_TX > 0 && HP_RX > 0)
+    {
+      hp.connect(&Serial2, HP_RX, HP_TX);
+    }
+    else
+    {
+      hp.connect(&Serial);
+    }
 #else
     hp.connect(&Serial);
 #endif
@@ -522,7 +529,7 @@ bool loadOthers()
     return false;
   }
   // Allocate document capacity.
-  const size_t capacity = JSON_OBJECT_SIZE(4) + 200;
+  const size_t capacity = JSON_OBJECT_SIZE(6) + 300;
   DynamicJsonDocument doc(capacity);
   deserializeJson(doc, configFile);
   // unit
@@ -544,6 +551,17 @@ bool loadOthers()
   if (strcmp(debugLogs.c_str(), "ON") == 0)
   {
     _debugModeLogs = true;
+  }
+  // custom tx rx pin
+  if (doc.containsKey("txPin") && doc.containsKey("rxPin")) // check key to prevent data is "null" if not exist
+  {
+    String txPin = doc["txPin"].as<String>();
+    String rxPin = doc["rxPin"].as<String>();
+    if (!txPin.isEmpty() && !rxPin.isEmpty())
+    {
+      HP_TX = atoi(txPin.c_str());
+      HP_RX = atoi(rxPin.c_str());
+    }
   }
   return true;
 }
@@ -646,15 +664,17 @@ void saveWifi(String apSsid, const String& apPwd, String hostName, const String&
   configFile.close();
 }
 
-void saveOthers(const String& haa, const String& haat, const String& debugPckts, const String& debugLogs)
+void saveOthers(const String& haa, const String& haat, const String& debugPckts, const String& debugLogs, const String& txPin, const String& rxPin)
 {
   // Allocate document capacity.
-  const size_t capacity = JSON_OBJECT_SIZE(4) + 130;
+  const size_t capacity = JSON_OBJECT_SIZE(6) + 300;
   DynamicJsonDocument doc(capacity);
   doc["haa"] = haa;
   doc["haat"] = haat;
   doc["debugPckts"] = debugPckts;
   doc["debugLogs"] = debugLogs;
+  doc["txPin"] = txPin;
+  doc["rxPin"] = rxPin;
   File configFile = SPIFFS.open(others_conf, "w");
   if (!configFile)
   {
@@ -669,7 +689,7 @@ void saveCurrentOthers()
   String haa = others_haa ? "ON" : "OFF";
   String debugPckts = _debugModePckts ? "ON" : "OFF";
   String debugLogs = _debugModeLogs ? "ON" : "OFF";
-  saveOthers(haa, others_haa_topic, debugPckts, debugLogs);
+  saveOthers(haa, others_haa_topic, debugPckts, debugLogs, String(HP_TX), String(HP_RX));
 }
 
 // Initialize captive portal page
@@ -1061,7 +1081,7 @@ void handleOthers(AsyncWebServerRequest *request)
   checkLogin(request);
   if (request->hasArg("save"))
   {
-    saveOthers(request->arg("HAA"), request->arg("haat"), request->arg("DebugPckts"), request->arg("DebugLogs"));
+    saveOthers(request->arg("HAA"), request->arg("haat"), request->arg("DebugPckts"), request->arg("DebugLogs"), request->arg("tx_pin"), request->arg("rx_pin"));
     String saveRebootPage = FPSTR(html_page_save_reboot);
     // localize
     saveRebootPage.replace("_TXT_M_SAVE_", translatedWord(FL_(txt_m_save)));
@@ -1078,12 +1098,16 @@ void handleOthers(AsyncWebServerRequest *request)
     othersPage.replace("_TXT_OTHERS_HATOPIC_", translatedWord(FL_(txt_others_hatopic)));
     othersPage.replace("_TXT_OTHERS_DEBUG_PCKTS_", translatedWord(FL_(txt_others_debug_packets)));
     othersPage.replace("_TXT_OTHERS_DEBUG_LOGS_", translatedWord(FL_(txt_others_debug_log)));
+    othersPage.replace("_TXT_TX_PIN_", translatedWord(FL_(txt_others_tx_pin)));
+    othersPage.replace("_TXT_RX_PIN_", translatedWord(FL_(txt_others_rx_pin)));
     othersPage.replace("_TXT_F_ON_", translatedWord(FL_(txt_f_on)));
     othersPage.replace("_TXT_F_OFF_", translatedWord(FL_(txt_f_off)));
     othersPage.replace("_TXT_SAVE_", translatedWord(FL_(txt_save)));
     othersPage.replace("_TXT_BACK_", translatedWord(FL_(txt_back)));
     // set data
     othersPage.replace("_HAA_TOPIC_", others_haa_topic);
+    othersPage.replace("_TX_PIN_", String(HP_TX));
+    othersPage.replace("_RX_PIN_", String(HP_RX));
     if (others_haa)
     {
       othersPage.replace("_HAA_ON_", "selected");
@@ -2175,16 +2199,6 @@ void sendKeepAlive()
     if (_debugModeLogs)
       mqttClient.publish(ha_debug_logs_topic.c_str(), 1, false, (char *)"Failed to publish avialable status");
   }
-  // send up time
-  rootInfo["upTime"] = getUpTime();
-  String mqttOutput;
-  serializeJson(rootInfo, mqttOutput);
-  if (!mqttClient.publish(ha_state_topic.c_str(), 1, false, mqttOutput.c_str()))
-  {
-    if (_debugModeLogs)
-      mqttClient.publish(ha_debug_logs_topic.c_str(), 1, false, (char *)("Failed to publish up time"));
-  }
-  mqttOutput = "";
 }
 
 void hpPacketDebug(byte *packet, unsigned int length, const char *packetDirection)
