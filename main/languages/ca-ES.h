@@ -18,7 +18,7 @@ namespace ca
   // Breadcum
   const char txt_setup_page[] PROGMEM = "Pàgina de configuració";
   const char txt_upload_fw_page[] PROGMEM = "Carregueu el microprogramari";
-  const char txt_fw_update_page[] PROGMEM = "Actualitza el microprogramari";
+  const char txt_fw_update_page[] PROGMEM = "Actualització del microprogramari";
   const char txt_check_fw_page[] PROGMEM = "Comproveu el nou microprogramari";
   const char txt_home_page[] PROGMEM = "Pàgina d'inici";
 
@@ -48,29 +48,29 @@ namespace ca
   const char txt_f_on[] PROGMEM = "ON";
   const char txt_f_off[] PROGMEM = "OFF";
   const char txt_f_auto[] PROGMEM = "AUTO";
-  const char txt_f_heat[] PROGMEM = "CALOR";
+  const char txt_f_heat[] PROGMEM = "CALEFACCIÓ";
   const char txt_f_dry[] PROGMEM = "ASSECAR";
-  const char txt_f_cool[] PROGMEM = "FRED";
+  const char txt_f_cool[] PROGMEM = "REFRIGERACIÓ";
   const char txt_f_fan[] PROGMEM = "VENTILADOR";
   const char txt_f_quiet[] PROGMEM = "SILENCIÓS";
   const char txt_f_speed[] PROGMEM = "VELOCITAT";
-  const char txt_f_swing[] PROGMEM = "DIFUSOR";
+  const char txt_f_swing[] PROGMEM = "OSCIL·LACIÓ";
   const char txt_f_pos[] PROGMEM = "POSICIÓ";
   const char txt_f_celsius[] PROGMEM = "Celsius";
   const char txt_f_fh[] PROGMEM = "Fahrenheit";
-  const char txt_f_allmodes[] PROGMEM = "Tots modes";
+  const char txt_f_allmodes[] PROGMEM = "Tots els modes";
   const char txt_f_noheat[] PROGMEM = "Tots els modes excepte calor";
   const char txt_f_noquiet[] PROGMEM = "No suporta mode silenciós";
-  const char txt_f_low[] PROGMEM = "LOW";
-  const char txt_f_medium[] PROGMEM = "MEDIUM";
-  const char txt_f_middle[] PROGMEM = "MIDDLE";
-  const char txt_f_high[] PROGMEM = "HIGH";
+  const char txt_f_low[] PROGMEM = "BAIX";
+  const char txt_f_medium[] PROGMEM = "MITJÀ";
+  const char txt_f_middle[] PROGMEM = "MITJÀ-ALT";
+  const char txt_f_high[] PROGMEM = "ALT";
 
   // Page Reboot, save & Resseting
-  const char txt_m_reboot[] PROGMEM = "S'està reiniciant... Refresca en";
+  const char txt_m_reboot[] PROGMEM = "S'està reiniciant... Refrescant en";
   const char txt_m_reset[] PROGMEM = "S'està restablint... Connectant a l'SSID";
   const char txt_m_reset_1[] PROGMEM = "Podeu tornar a connectar-vos a l'SSID";
-  const char txt_m_save[] PROGMEM = "S'està desant la configuració i s'està reiniciant... Refresca en";
+  const char txt_m_save[] PROGMEM = "S'està desant la configuració i s'està reiniciant... Refrescant en";
 
   // Page MQTT
   const char txt_mqtt_title[] PROGMEM = "Configuració MQTT";
@@ -170,7 +170,7 @@ namespace ca
   const char txt_upload_code[] PROGMEM = "Codi d'error de pujada ";
   const char txt_upload_error[] PROGMEM = "Codi d'error de pujada (vegeu Updater.cpp) ";
   const char txt_upload_success[] PROGMEM = "Correcte";
-  const char txt_upload_refresh[] PROGMEM = "Refresca en";
+  const char txt_upload_refresh[] PROGMEM = "Refrescant en";
 
   // Page Init  
   const char txt_init_title[] PROGMEM = "Configuració inicial";
