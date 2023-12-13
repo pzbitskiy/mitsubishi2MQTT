@@ -39,7 +39,8 @@ extern "C"
 #include <ESPAsyncTCP.h> // ESPAsyncWebServer for ESP8266
 #define U_PART U_FS
 #endif
-#include <AsyncMqttClient.h>
+//#include <AsyncMqttClient.h>
+#include <espMqttClientAsync.h>
 #include <ESPAsyncWebServer.h> //ESPAsyncWebServer
 AsyncWebServer server(80);     // Async Web server
 #define WEBSOCKET_ENABLE 1     // Uncomment to enable websocket
@@ -59,7 +60,8 @@ AsyncEventSource events("/events"); // Create an Event Source on /events
 #include "time.h"     // time lib
 
 // wifi, mqtt and heatpump client instances
-AsyncMqttClient mqttClient; // AsyncMqtt
+// AsyncMqttClient mqttClient; // AsyncMqtt
+espMqttClientAsync mqttClient; // espMqttClientAsync
 #ifdef ESP32
 TimerHandle_t mqttReconnectTimer; // timer for esp32 AsyncMqttClient
 TimerHandle_t wifiReconnectTimer; // timer for esp32 AsyncMqttClient

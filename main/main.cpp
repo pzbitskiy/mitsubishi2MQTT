@@ -67,7 +67,7 @@ void hpStatusChanged(heatpumpStatus currentStatus);
 void hpCheckRemoteTemp();
 void hpPacketDebug(byte *packet, unsigned int length, const char *packetDirection);
 void hpSendLocalState();
-void mqttCallback(char *topic, char *payload, unsigned int length);
+void mqttCallback(const char *topic, const uint8_t *payload, const unsigned int length);
 void sendHaConfig();
 void mqttConnect();
 bool connectWifi();
@@ -86,12 +86,14 @@ void WiFiEvent(WiFiEvent_t event);
 void onWifiConnect(const WiFiEventStationModeGotIP &event);
 void onWifiDisconnect(const WiFiEventStationModeDisconnected &event);
 #endif
+
 void onMqttConnect(bool sessionPresent);
-void onMqttDisconnect(AsyncMqttClientDisconnectReason reason);
-void onMqttSubscribe(uint16_t packetId, uint8_t qos);
+void onMqttDisconnect(espMqttClientTypes::DisconnectReason reason);
+void onMqttSubscribe(uint16_t packetId, const espMqttClientTypes::SubscribeReturncode* codes, size_t len);
 void onMqttUnsubscribe(uint16_t packetId);
-void onMqttMessage(char *topic, char *payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total);
+void onMqttMessage(const espMqttClientTypes::MessageProperties& properties, const char* topic, const uint8_t* payload, size_t len, size_t index, size_t total);
 void onMqttPublish(uint16_t packetId);
+
 String getValueBySeparator(const String& data, char separator, int index);
 void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len);
 
@@ -745,8 +747,8 @@ void initMqtt()
   ESP_LOGD(TAG, "Setup Async Mqtt...");
   mqttClient.onConnect(onMqttConnect);
   mqttClient.onDisconnect(onMqttDisconnect);
-  // mqttClient.onSubscribe(onMqttSubscribe);
-  // mqttClient.onUnsubscribe(onMqttUnsubscribe);
+  mqttClient.onSubscribe(onMqttSubscribe);
+  mqttClient.onUnsubscribe(onMqttUnsubscribe);
   mqttClient.onMessage(onMqttMessage);
   mqttClient.onPublish(onMqttPublish);
 
@@ -2246,17 +2248,12 @@ void hpSendLocalState()
   lastTempSend = millis();
 }
 
-void mqttCallback(char *topic, char *payload, unsigned int length)
+void mqttCallback(const char *topic, const uint8_t *payload, const unsigned int length)
 {
-
   // Copy payload into message buffer
-  char message[length + 1];
-  for (unsigned int i = 0; i < length; i++)
-  {
-    message[i] = (char)payload[i];
-  }
+  char *message = new char[length + 1];
+  memcpy(message, payload, length);
   message[length] = '\0';
-
   bool update = false;
   // HA topics
   // Receive power topic
@@ -2466,6 +2463,7 @@ void mqttCallback(char *topic, char *payload, unsigned int length)
     requestHpUpdate = true;
     requestHpUpdateTime = millis() + 10;
   }
+  delete[] message;
 }
 
 void haConfigTemp(String tag, String icon) {
@@ -3023,7 +3021,7 @@ void onMqttConnect(bool sessionPresent)
   sendHaConfig();
 }
 
-void onMqttDisconnect(AsyncMqttClientDisconnectReason reason)
+void onMqttDisconnect(espMqttClientTypes::DisconnectReason reason)
 {
   mqtt_disconnect_reason = (uint8_t)reason;
   mqtt_connected = false;
@@ -3039,15 +3037,20 @@ void onMqttDisconnect(AsyncMqttClientDisconnectReason reason)
   }
 }
 
-// void onMqttSubscribe(uint16_t packetId, uint8_t qos) {
-//   ESP_LOGD(TAG, "Subscribe acknowledged. packetId: %d, qos: %d", packetId, qos);
-// }
+void onMqttSubscribe(uint16_t packetId, const espMqttClientTypes::SubscribeReturncode *codes, size_t len)
+{
+  for (size_t i = 0; i < len; ++i)
+  {
+    ESP_LOGD(TAG, "Subscribe acknowledged. packetId: %d, qos: %d", packetId, static_cast<uint8_t>(codes[i]));
+  }
+}
 
-// void onMqttUnsubscribe(uint16_t packetId) {
-//   ESP_LOGD(TAG, "Unsubscribe acknowledged. packetId:  %d", packetId);
-// }
+void onMqttUnsubscribe(uint16_t packetId)
+{
+  ESP_LOGD(TAG, "Unsubscribe acknowledged. packetId:  %d", packetId);
+}
 
-void onMqttMessage(char *topic, char *payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total)
+void onMqttMessage(const espMqttClientTypes::MessageProperties& properties, const char* topic, const uint8_t* payload, size_t len, size_t index, size_t total)
 {
   ESP_LOGD(TAG, "Publish received. topic: %s, qos: %d dup: %d, retain: %d", topic, properties.qos, properties.dup, properties.retain);
   ESP_LOGD(TAG, "Publish received. len: %d, index: %d, total: %d", len, index, total);
