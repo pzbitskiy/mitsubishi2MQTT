@@ -17,7 +17,7 @@ namespace ca
 {
   // Breadcum
   const char txt_setup_page[] PROGMEM = "Pàgina de configuració";
-  const char txt_upload_fw_page[] PROGMEM = "Carregueu el microprogramari";
+  const char txt_upload_fw_page[] PROGMEM = "Carrega del microprogramari";
   const char txt_fw_update_page[] PROGMEM = "Actualització del microprogramari";
   const char txt_check_fw_page[] PROGMEM = "Comproveu el nou microprogramari";
   const char txt_home_page[] PROGMEM = "Pàgina d'inici";
@@ -59,7 +59,7 @@ namespace ca
   const char txt_f_celsius[] PROGMEM = "Celsius";
   const char txt_f_fh[] PROGMEM = "Fahrenheit";
   const char txt_f_allmodes[] PROGMEM = "Tots els modes";
-  const char txt_f_noheat[] PROGMEM = "Tots els modes excepte calor";
+  const char txt_f_noheat[] PROGMEM = "Tots els modes excepte calefacció";
   const char txt_f_noquiet[] PROGMEM = "No suporta mode silenciós";
   const char txt_f_low[] PROGMEM = "BAIX";
   const char txt_f_medium[] PROGMEM = "MITJÀ";
