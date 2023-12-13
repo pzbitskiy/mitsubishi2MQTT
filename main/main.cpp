@@ -262,6 +262,7 @@ void setup()
 #else
     hp.connect(&Serial);
 #endif
+    hp.setFastSync(true); // enable fast sync because we are not care about timer nad other package
     heatpumpStatus currentStatus = hp.getStatus();
     heatpumpSettings currentSettings = hp.getSettings();
     rootInfo["roomTemperature"] = convertCelsiusToLocalUnit(currentStatus.roomTemperature, useFahrenheit);
@@ -1898,54 +1899,51 @@ void write_log(const String& log)
 
 heatpumpSettings change_states(AsyncWebServerRequest *request, heatpumpSettings settings)
 {
-  if (request->hasArg("CONNECT"))
+  bool update = false;
+  if (request->hasArg("PWRCHK"))
   {
-#if defined(ESP32) && defined(HP_TX) && defined(HP_RX)
-    hp.connect(&Serial2, HP_RX, HP_TX);
-#else
-    hp.connect(&Serial);
-#endif
+    settings.power = request->hasArg("POWER") ? "ON" : "OFF";
+    update = true;
   }
-  else
+  if (request->hasArg("MODE"))
   {
-    bool update = false;
-    if (request->hasArg("PWRCHK"))
+    ESP_LOGD(TAG, "Settings Mode before: %s", request->arg("MODE").c_str());
+    settings.mode = request->arg("MODE").c_str();
+    ESP_LOGD(TAG, "Settings Mode after: %s", settings.mode);
+    update = true;
+  }
+  if (request->hasArg("TEMP"))
+  {
+    settings.temperature = convertLocalUnitToCelsius(request->arg("TEMP").toFloat(), useFahrenheit);
+    update = true;
+  }
+  if (request->hasArg("FAN"))
+  {
+    ESP_LOGD(TAG, "Settings Fan before: %s", request->arg("FAN").c_str());
+    settings.fan = request->arg("FAN").c_str();
+    ESP_LOGD(TAG, "Settings Fan after: %s", settings.fan);
+    update = true;
+  }
+  if (request->hasArg("VANE"))
+  {
+    settings.vane = request->arg("VANE").c_str();
+    update = true;
+  }
+  if (request->hasArg("WIDEVANE"))
+  {
+    settings.wideVane = request->arg("WIDEVANE").c_str();
+    update = true;
+  }
+  if (update)
+  {
+    hp.setSettings(settings);
+    if (hp.getSettings() == hp.getWantedSettings()) // only update it settings change
     {
-      settings.power = request->hasArg("POWER") ? "ON" : "OFF";
-      update = true;
+      ESP_LOGW(TAG, "Same Settings to HP, Igrore");
     }
-    if (request->hasArg("MODE"))
+    else
     {
-      ESP_LOGD(TAG, "Settings Mode before: %s", request->arg("MODE").c_str());
-      settings.mode = request->arg("MODE").c_str();
-      ESP_LOGD(TAG, "Settings Mode after: %s", settings.mode);
-      update = true;
-    }
-    if (request->hasArg("TEMP"))
-    {
-      settings.temperature = convertLocalUnitToCelsius(request->arg("TEMP").toFloat(), useFahrenheit);
-      update = true;
-    }
-    if (request->hasArg("FAN"))
-    {
-      ESP_LOGD(TAG, "Settings Fan before: %s", request->arg("FAN").c_str());
-      settings.fan = request->arg("FAN").c_str();
-      ESP_LOGD(TAG, "Settings Fan after: %s", settings.fan);
-      update = true;
-    }
-    if (request->hasArg("VANE"))
-    {
-      settings.vane = request->arg("VANE").c_str();
-      update = true;
-    }
-    if (request->hasArg("WIDEVANE"))
-    {
-      settings.wideVane = request->arg("WIDEVANE").c_str();
-      update = true;
-    }
-    if (update)
-    {
-      hp.setSettings(settings);
+      ESP_LOGI(TAG, "Send Settings to HP");
       requestHpUpdate = true;
       requestHpUpdateTime = millis() + 10;
     }
@@ -1967,6 +1965,10 @@ void readHeatPumpSettings()
 
 void hpSettingsChanged()
 {
+  if (millis() - hp.getLastWanted() < PREVENT_UPDATE_INTERVAL_MS) // prevent HA setting change after send update interval we wait for 1 seconds before udpate data
+  {
+    return;
+  }
   // send room temp, operating info and all information
   readHeatPumpSettings();
 
@@ -1978,7 +1980,7 @@ void hpSettingsChanged()
     if (_debugModeLogs)
       mqttClient.publish(ha_debug_logs_topic.c_str(), 1, false, (char *)("Failed to publish hp settings"));
   }
-
+  mqttOutput = "";
   hpStatusChanged(hp.getStatus());
 }
 
@@ -2094,55 +2096,56 @@ String hpGetAction(heatpumpStatus hpStatus, heatpumpSettings hpSettings)
 
 void hpStatusChanged(heatpumpStatus currentStatus)
 {
-  if (millis() - lastTempSend > SEND_ROOM_TEMP_INTERVAL_MS)
-  {                      // only send the temperature every SEND_ROOM_TEMP_INTERVAL_MS (millis rollover tolerant)
-    hpCheckRemoteTemp(); // if the remote temperature feed from mqtt is stale, disable it and revert to the internal thermometer.
-
-    // send room temp, operating info and all information
-    heatpumpSettings currentSettings = hp.getSettings();
-
-    if (currentStatus.roomTemperature == 0)
-      return;
-
-    rootInfo.clear();
-    float roomTemperature = convertCelsiusToLocalUnit(currentStatus.roomTemperature, useFahrenheit);
-    float temperature = convertCelsiusToLocalUnit(currentSettings.temperature, useFahrenheit);
-    rootInfo["roomTemperature"] = roomTemperature;
-    rootInfo["temperature"] = temperature;
-    rootInfo["compressorFreq"] = currentStatus.compressorFrequency;
-    events.send(String(roomTemperature).c_str(), "room_temperature", millis(), 50); // send data to browser
-    events.send(String(temperature).c_str(), "temperature", millis(), 60);
-    if (!(String(currentSettings.fan).isEmpty())) // null may crash with multitask
-    {
-      rootInfo["fan"] = getFanModeFromHp(currentSettings.fan);
-      events.send(currentSettings.fan, "fan", millis(), 70);
-    }
-    if (!(String(currentSettings.vane).isEmpty()))
-    {
-      rootInfo["vane"] = currentSettings.vane;
-      events.send(currentSettings.vane, "vane", millis(), 80);
-    }
-    if (!(String(currentSettings.wideVane).isEmpty()))
-    {
-      rootInfo["wideVane"] = currentSettings.wideVane;
-      events.send(currentSettings.wideVane, "wideVane", millis(), 90);
-    }
-    rootInfo["mode"] = hpGetMode(currentSettings);
-    rootInfo["action"] = hpGetAction(currentStatus, currentSettings);
-    events.send(currentSettings.mode, "mode", millis(), 100);
-    events.send(currentSettings.power, "power", millis(), 110);
-    rootInfo["compressorFrequency"] = currentStatus.compressorFrequency;
-    String mqttOutput;
-    serializeJson(rootInfo, mqttOutput);
-
-    if (!mqttClient.publish(ha_state_topic.c_str(), 1, false, mqttOutput.c_str()))
-    {
-      if (_debugModeLogs)
-        mqttClient.publish(ha_debug_logs_topic.c_str(), 1, false, (char *)("Failed to publish hp status change"));
-    }
-
-    lastTempSend = millis();
+  if (millis() - hp.getLastWanted() < PREVENT_UPDATE_INTERVAL_MS) // prevent HA setting change after send update interval we wait for 1 seconds before udpate data
+  {
+    return;
   }
+  hpCheckRemoteTemp(); // if the remote temperature feed from mqtt is stale, disable it and revert to the internal thermometer.
+
+  // send room temp, operating info and all information
+  heatpumpSettings currentSettings = hp.getSettings();
+
+  if (currentStatus.roomTemperature == 0)
+    return;
+
+  rootInfo.clear();
+  float roomTemperature = convertCelsiusToLocalUnit(currentStatus.roomTemperature, useFahrenheit);
+  float temperature = convertCelsiusToLocalUnit(currentSettings.temperature, useFahrenheit);
+  rootInfo["roomTemperature"] = roomTemperature;
+  rootInfo["temperature"] = temperature;
+  rootInfo["compressorFreq"] = currentStatus.compressorFrequency;
+  events.send(String(roomTemperature).c_str(), "room_temperature", millis(), 50); // send data to browser
+  events.send(String(temperature).c_str(), "temperature", millis(), 60);
+  if (!(String(currentSettings.fan).isEmpty())) // null may crash with multitask
+  {
+    rootInfo["fan"] = getFanModeFromHp(currentSettings.fan);
+    events.send(currentSettings.fan, "fan", millis(), 70);
+  }
+  if (!(String(currentSettings.vane).isEmpty()))
+  {
+    rootInfo["vane"] = currentSettings.vane;
+    events.send(currentSettings.vane, "vane", millis(), 80);
+  }
+  if (!(String(currentSettings.wideVane).isEmpty()))
+  {
+    rootInfo["wideVane"] = currentSettings.wideVane;
+    events.send(currentSettings.wideVane, "wideVane", millis(), 90);
+  }
+  rootInfo["mode"] = hpGetMode(currentSettings);
+  rootInfo["action"] = hpGetAction(currentStatus, currentSettings);
+  events.send(currentSettings.mode, "mode", millis(), 100);
+  events.send(currentSettings.power, "power", millis(), 110);
+  rootInfo["compressorFrequency"] = currentStatus.compressorFrequency;
+  rootInfo["upTime"] = getUpTime();
+  String mqttOutput;
+  serializeJson(rootInfo, mqttOutput);
+
+  if (!mqttClient.publish(ha_state_topic.c_str(), 1, false, mqttOutput.c_str()))
+  {
+    if (_debugModeLogs)
+      mqttClient.publish(ha_debug_logs_topic.c_str(), 1, false, (char *)("Failed to publish hp status change"));
+  }
+  mqttOutput = "";
 }
 
 void hpCheckRemoteTemp()
@@ -2154,6 +2157,34 @@ void hpCheckRemoteTemp()
     hp.setRemoteTemperature(temperature);
     hp.update();
   }
+}
+
+void sendKeepAlive()
+{
+  if (millis() - lastAliveMsgSend > SEND_ALIVE_MSG_INTERVAL_MS)
+  {
+    lastAliveMsgSend = millis();
+  }
+  else
+  {
+    return;
+  }
+  // send keep alive message
+  if (!mqttClient.publish(ha_availability_topic.c_str(), 1, true, mqtt_payload_available))
+  {
+    if (_debugModeLogs)
+      mqttClient.publish(ha_debug_logs_topic.c_str(), 1, false, (char *)"Failed to publish avialable status");
+  }
+  // send up time
+  rootInfo["upTime"] = getUpTime();
+  String mqttOutput;
+  serializeJson(rootInfo, mqttOutput);
+  if (!mqttClient.publish(ha_state_topic.c_str(), 1, false, mqttOutput.c_str()))
+  {
+    if (_debugModeLogs)
+      mqttClient.publish(ha_debug_logs_topic.c_str(), 1, false, (char *)("Failed to publish up time"));
+  }
+  mqttOutput = "";
 }
 
 void hpPacketDebug(byte *packet, unsigned int length, const char *packetDirection)
@@ -2196,7 +2227,7 @@ void hpSendLocalState()
     if (_debugModeLogs)
       mqttClient.publish(ha_debug_logs_topic.c_str(), 1, false, (char *)("Failed to publish dummy hp status change"));
   }
-
+  mqttOutput = "";
   // Restart counter for waiting enought time for the unit to update before sending a state packet
   lastTempSend = millis();
 }
@@ -2412,6 +2443,12 @@ void mqttCallback(char *topic, char *payload, unsigned int length)
 
   if (update)
   {
+    if (hp.getSettings() == hp.getWantedSettings()) // only update it settings change
+    {
+      ESP_LOGW(TAG, "Same Settings to HP, Igrore");
+      return;
+    }
+    ESP_LOGI(TAG, "Send Settings to HP");
     requestHpUpdate = true;
     requestHpUpdateTime = millis() + 10;
   }
@@ -2827,8 +2864,14 @@ void loop()
   if (!captive and mqtt_config)
   {
     if (wifiConnected && mqtt_connected)
-    { // only send the temperature every SEND_ROOM_TEMP_INTERVAL_MS
-      hpStatusChanged(hp.getStatus());
+    { 
+      // only send the temperature every SEND_ROOM_TEMP_INTERVAL_MS (millis rollover tolerant)
+      // if (millis() - lastTempSend > SEND_ROOM_TEMP_INTERVAL_MS)
+      // { 
+      //   hpStatusChanged(hp.getStatus());
+      //   lastTempSend = millis();
+      // }
+      sendKeepAlive();
     }
   }
   // delay(10);
@@ -3148,7 +3191,7 @@ String getUpTime()
   int minutes = (secondsSinceBoot % 3600) / 60;
   int hours = (secondsSinceBoot % 86400) / 3600;
   int days = (secondsSinceBoot % (86400 * 30)) / 86400;
-  sprintf(uptimeBuffer, "   %02i:%02i:%02i:%02i         ", days, hours, minutes, seconds);
+  sprintf(uptimeBuffer, "%02i:%02i:%02i:%02i", days, hours, minutes, seconds);
   return String(uptimeBuffer);
 }
 

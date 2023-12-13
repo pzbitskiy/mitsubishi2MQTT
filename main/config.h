@@ -88,6 +88,7 @@ boolean remoteTempActive = false;
 
 // HVAC
 HeatPump hp;
+unsigned long lastAliveMsgSend;
 unsigned long lastTempSend;
 unsigned long lastMqttRetry;
 unsigned long lastHpSync;
@@ -116,7 +117,7 @@ unsigned long requestWifiScanTime = 0;
 #define WIFI_SCAN_PERIOD 120000
 unsigned lastWifiScanMillis;
 
-const PROGMEM char *m2mqtt_version = "2023.11.5";
+const PROGMEM char *m2mqtt_version = "2023.12.2";
 
 // Define global variables for files
 #ifdef ESP32
@@ -214,6 +215,8 @@ const uint8_t max_temp = 31; // Maximum temperature, in your selected unit, chec
 String temp_step = "1";      // Temperature setting step, check value from heatpump remote control
 
 // sketch settings
+const PROGMEM uint32_t PREVENT_UPDATE_INTERVAL_MS = 3000;  // interval to prevent HA setting change after send settings to HP
+const PROGMEM uint32_t SEND_ALIVE_MSG_INTERVAL_MS = 30000; // interval send mqtt keep alive message
 const PROGMEM uint32_t SEND_ROOM_TEMP_INTERVAL_MS = 30000; // 45 seconds (anything less may cause bouncing)
 const PROGMEM uint32_t WIFI_RETRY_INTERVAL_MS = 300000;
 const PROGMEM uint32_t WIFI_RECONNECT_INTERVAL_MS = 10000;     // 10 seconds
