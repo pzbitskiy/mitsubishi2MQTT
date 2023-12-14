@@ -2938,10 +2938,12 @@ void loop()
   }
   if (!captive and mqtt_config)
   {
+#ifdef ESP8266
     if (mqttClient != nullptr)
     {
       mqttClient->loop();
     }
+#endif
     if (wifiConnected && mqtt_connected)
     { 
       // only send the temperature every SEND_ROOM_TEMP_INTERVAL_MS (millis rollover tolerant)
