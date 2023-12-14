@@ -764,6 +764,7 @@ void initMqtt()
   if (atoi(mqtt_port.c_str()) == 8883)
   {
     mqttClient = static_cast<MqttClient *>(new espMqttClientSecure);
+#ifdef ESP32
     if (!mqtt_root_ca_cert.isEmpty() && mqtt_root_ca_cert.length() > 500)
     {
       static_cast<espMqttClientSecure *>(mqttClient)->setCACert(mqtt_root_ca_cert.c_str());
@@ -772,6 +773,17 @@ void initMqtt()
     {
       static_cast<espMqttClientSecure *>(mqttClient)->setCACert(rootCA_LE);
     }
+#else
+    // static_cast<espMqttClientSecure *>(mqttClient)->setInsecure(); // ESP8266
+    if (sizeof(mqtt_finger_print) > 19 && mqtt_finger_print[0] != 0)
+    {
+      static_cast<espMqttClientSecure *>(mqttClient)->setFingerprint(mqtt_finger_print);
+    }
+    else
+    {
+      static_cast<espMqttClientSecure *>(mqttClient)->setFingerprint(fingerprint);
+    }
+#endif
     static_cast<espMqttClientSecure*>(mqttClient)->onConnect(onMqttConnect);
     static_cast<espMqttClientSecure*>(mqttClient)->onDisconnect(onMqttDisconnect);
     static_cast<espMqttClientSecure*>(mqttClient)->onSubscribe(onMqttSubscribe);
