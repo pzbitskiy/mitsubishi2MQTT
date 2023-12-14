@@ -76,10 +76,14 @@ const char html_common_header[] PROGMEM =
         "}"
 
         "textarea {"
-            "resize: none;"
-            "width: 98%;"
-            "height: 318px;"
+            "resize: true;"
+            "width: 100%;"
+            "height: 50px;"
             "padding: 5px;"
+            "box-sizing: border-box;"
+            "border: 2px solid #ccc;"
+            "border-radius: 4px;"
+            "background-color: #f8f8f8;"
             "overflow: auto;"
         "}"
 

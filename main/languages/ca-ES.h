@@ -78,13 +78,14 @@ namespace ca
   const char txt_mqtt_fn_desc[] PROGMEM = "(sense espais ni caràcters especials)";
   const char txt_mqtt_host[] PROGMEM = "Anfitrió o IP";
   const char txt_mqtt_port[] PROGMEM = "Port";
-  const char txt_mqtt_port_desc[] PROGMEM = "(1883 per defecte, no és compatible amb 8883)";
+  const char txt_mqtt_port_desc[] PROGMEM = "(1883 per defecte, 8883 CERT requereix)";
   const char txt_mqtt_user[] PROGMEM = "Usuari";
   const char txt_mqtt_password[] PROGMEM = "Contrasenya";
   const char txt_mqtt_topic[] PROGMEM = "Tema";
   const char txt_mqtt_ph_topic[] PROGMEM = "Introduïu el tema Mqtt";
   const char txt_mqtt_ph_user[] PROGMEM = "Introduïu l'usuari Mqtt";
   const char txt_mqtt_ph_pwd[] PROGMEM = "Introduïu la contrasenya Mqtt";
+  const char txt_mqtt_root_ca_cert[] PROGMEM = "CA-Root-Certificate (default Letsencrypt)";
 
   // Page Others
   const char txt_others_title[] PROGMEM = "Altra configuració";
@@ -92,8 +93,8 @@ namespace ca
   const char txt_others_hatopic[] PROGMEM = "HA tema d'autodescobriment";
   const char txt_others_debug_packets[] PROGMEM = "MQTT topic debug packets";
   const char txt_others_debug_log[] PROGMEM = "MQTT topic debug logs";
-  const char txt_others_tx_pin[] PROGMEM = "TX pin (ESP32, 0 use Serial)";
-  const char txt_others_rx_pin[] PROGMEM = "RX pin (ESP32, 0 use Serial)";
+  const char txt_others_tx_pin[] PROGMEM = "TX pin (ESP32, 0 use UART1)";
+  const char txt_others_rx_pin[] PROGMEM = "RX pin (ESP32, 0 use UART1)";
 
   // Page Status
   const char txt_status_title[] PROGMEM = "Estat";

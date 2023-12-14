@@ -85,6 +85,7 @@ namespace zh
   const char txt_mqtt_ph_topic[] PROGMEM = "Enter Mqtt topic";
   const char txt_mqtt_ph_user[] PROGMEM = "Enter Mqtt user";
   const char txt_mqtt_ph_pwd[] PROGMEM = "Enter Mqtt password";
+  const char txt_mqtt_root_ca_cert[] PROGMEM = "CA-Root-Certificate (default Letsencrypt)";
 
   // Page Others
   const char txt_others_title[] PROGMEM = "其他参数";
@@ -92,8 +93,8 @@ namespace zh
   const char txt_others_hatopic[] PROGMEM = "HA 自动发现主题";
   const char txt_others_debug_packets[] PROGMEM = "MQTT topic debug packets";
   const char txt_others_debug_log[] PROGMEM = "MQTT topic debug logs";
-  const char txt_others_tx_pin[] PROGMEM = "TX pin (ESP32, 0 use Serial)";
-  const char txt_others_rx_pin[] PROGMEM = "RX pin (ESP32, 0 use Serial)";
+  const char txt_others_tx_pin[] PROGMEM = "TX pin (ESP32, 0 use UART1)";
+  const char txt_others_rx_pin[] PROGMEM = "RX pin (ESP32, 0 use UART1)";
   
   // Page Status
   const char txt_status_title[] PROGMEM = "状态";
