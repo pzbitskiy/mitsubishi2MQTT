@@ -36,7 +36,7 @@ namespace de
   const char txt_reset[] PROGMEM = "Einstellungen zurücksetzen";
   const char txt_reset_confirm[] PROGMEM = "Willst du wirklich alle Einstellungen zurücksetzen?";
   const char txt_mqtt_fn_desc[] PROGMEM = "(no space or special char)";
-  const char txt_mqtt_port_desc[] PROGMEM = "(default 1883, not support 8883)";
+  const char txt_mqtt_port_desc[] PROGMEM = "(default 1883, ESP32: 8883 CERT require)";
   const char txt_mqtt_ph_topic[] PROGMEM = "Enter Mqtt topic";
   const char txt_mqtt_ph_user[] PROGMEM = "Enter Mqtt user";
   const char txt_mqtt_ph_pwd[] PROGMEM = "Enter Mqtt password";
@@ -80,10 +80,11 @@ namespace de
   const char txt_mqtt_title[] PROGMEM = "MQTT Parameter";
   const char txt_mqtt_fn[] PROGMEM = "Anzeigename";
   const char txt_mqtt_host[] PROGMEM = "Host";
-  const char txt_mqtt_port[] PROGMEM = "Port (default 1883)";
+  const char txt_mqtt_port[] PROGMEM = "Port";
   const char txt_mqtt_user[] PROGMEM = "Benutzername";
   const char txt_mqtt_password[] PROGMEM = "Passwort";
   const char txt_mqtt_topic[] PROGMEM = "Topic";
+  const char txt_mqtt_root_ca_cert[] PROGMEM = "CA-Root-Certificate (default Letsencrypt)";
 
   // Page Others
   const char txt_others_title[] PROGMEM = "Weitere Parameter";
@@ -91,8 +92,8 @@ namespace de
   const char txt_others_hatopic[] PROGMEM = "HA Autodiscovery topic";
   const char txt_others_debug_packets[] PROGMEM = "MQTT topic debug packets";
   const char txt_others_debug_log[] PROGMEM = "MQTT topic debug logs";
-  const char txt_others_tx_pin[] PROGMEM = "TX pin (ESP32, 0 use Serial)";
-  const char txt_others_rx_pin[] PROGMEM = "RX pin (ESP32, 0 use Serial)";
+  const char txt_others_tx_pin[] PROGMEM = "TX pin (ESP32, 0 use UART1)";
+  const char txt_others_rx_pin[] PROGMEM = "RX pin (ESP32, 0 use UART1)";
   
   // Page Status
   const char txt_status_title[] PROGMEM = "Status";

@@ -29,7 +29,7 @@ bool loadWifi();
 bool loadMqtt();
 bool loadUnit();
 bool loadOthers();
-void saveMqtt(String mqttFn, const String& mqttHost, String mqttPort, const String& mqttUser, const String& mqttPwd, String mqttTopic);
+void saveMqtt(String mqttFn, const String& mqttHost, String mqttPort, const String& mqttUser, const String& mqttPwd, String mqttTopic, const String& mqttRootCaCert);
 void saveUnit(String tempUnit, String supportMode, String supportFanMode, String loginPassword, String tempStep, String languageIndex);
 void saveWifi(String apSsid, const String& apPwd, String hostName, const String& otaPwd);
 void saveOthers(const String& haa, const String& haat, const String& debugPckts, const String& debugLogs, const String& txPin, const String& rxPin);
@@ -67,7 +67,7 @@ void hpStatusChanged(heatpumpStatus currentStatus);
 void hpCheckRemoteTemp();
 void hpPacketDebug(byte *packet, unsigned int length, const char *packetDirection);
 void hpSendLocalState();
-void mqttCallback(char *topic, char *payload, unsigned int length);
+void mqttCallback(const char *topic, const uint8_t *payload, const unsigned int length);
 void sendHaConfig();
 void mqttConnect();
 bool connectWifi();
@@ -86,12 +86,14 @@ void WiFiEvent(WiFiEvent_t event);
 void onWifiConnect(const WiFiEventStationModeGotIP &event);
 void onWifiDisconnect(const WiFiEventStationModeDisconnected &event);
 #endif
+
 void onMqttConnect(bool sessionPresent);
-void onMqttDisconnect(AsyncMqttClientDisconnectReason reason);
-void onMqttSubscribe(uint16_t packetId, uint8_t qos);
+void onMqttDisconnect(espMqttClientTypes::DisconnectReason reason);
+void onMqttSubscribe(uint16_t packetId, const espMqttClientTypes::SubscribeReturncode* codes, size_t len);
 void onMqttUnsubscribe(uint16_t packetId);
-void onMqttMessage(char *topic, char *payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total);
+void onMqttMessage(const espMqttClientTypes::MessageProperties& properties, const char* topic, const uint8_t* payload, size_t len, size_t index, size_t total);
 void onMqttPublish(uint16_t packetId);
+
 String getValueBySeparator(const String& data, char separator, int index);
 void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len);
 
@@ -264,7 +266,7 @@ void setup()
     }
     else
     {
-      hp.connect(&Serial);
+      hp.connect(&Serial1);
     }
 #else
     hp.connect(&Serial);
@@ -377,18 +379,18 @@ bool loadMqtt()
   File configFile = SPIFFS.open(mqtt_conf, "r");
   if (!configFile)
   {
-    // write_log("Failed to open MQTT config file");
+    ESP_LOGE(TAG, "Failed to open MQTT config file");
     return false;
   }
 
   size_t size = configFile.size();
-  if (size > 1024)
+  if (size > 5000)
   {
-    // write_log("Config file size is too large");
+    ESP_LOGE(TAG, "Wifi config file size is too large");
     return false;
   }
   // Allocate document capacity.
-  const size_t capacity = JSON_OBJECT_SIZE(6) + 400;
+  const size_t capacity = JSON_OBJECT_SIZE(7) + 400 + 2650;
   DynamicJsonDocument doc(capacity);
   deserializeJson(doc, configFile);
   // check key to prevent data is "null" if not exist
@@ -441,7 +443,14 @@ bool loadMqtt()
   {
     mqtt_topic = "";
   }
-
+  if (doc.containsKey("mqtt_root_ca_cert"))
+  {
+    mqtt_root_ca_cert = doc["mqtt_root_ca_cert"].as<String>();
+  }
+  else
+  {
+    mqtt_root_ca_cert = "";
+  }
   // write_log("=== START DEBUG MQTT ===");
   // write_log("Friendly Name" + mqtt_fn);
   // write_log("IP Server " + mqtt_server);
@@ -566,10 +575,10 @@ bool loadOthers()
   return true;
 }
 
-void saveMqtt(String mqttFn, const String& mqttHost, String mqttPort, const String& mqttUser, const String& mqttPwd, String mqttTopic)
+void saveMqtt(String mqttFn, const String& mqttHost, String mqttPort, const String& mqttUser, const String& mqttPwd, String mqttTopic, const String& mqttRootCaCert)
 {
   // Allocate document capacity.
-  const size_t capacity = JSON_OBJECT_SIZE(6) + 400;
+  const size_t capacity = JSON_OBJECT_SIZE(7) + 400 + 2560;
   DynamicJsonDocument doc(capacity);
   // if mqtt port is empty, we use default port
   if (mqttPort.isEmpty())
@@ -595,6 +604,10 @@ void saveMqtt(String mqttFn, const String& mqttHost, String mqttPort, const Stri
   doc["mqtt_user"] = mqttUser;
   doc["mqtt_pwd"] = mqttPwd;
   doc["mqtt_topic"] = mqttTopic;
+  if (!mqttRootCaCert.isEmpty() && mqttRootCaCert.length() > 500)
+  {
+    doc["mqtt_root_ca_cert"] = mqttRootCaCert;
+  }
   File configFile = SPIFFS.open(mqtt_conf, "w");
   if (!configFile)
   {
@@ -743,12 +756,51 @@ void initCaptivePortal()
 void initMqtt()
 {
   ESP_LOGD(TAG, "Setup Async Mqtt...");
-  mqttClient.onConnect(onMqttConnect);
-  mqttClient.onDisconnect(onMqttDisconnect);
-  // mqttClient.onSubscribe(onMqttSubscribe);
-  // mqttClient.onUnsubscribe(onMqttUnsubscribe);
-  mqttClient.onMessage(onMqttMessage);
-  mqttClient.onPublish(onMqttPublish);
+  if (mqttClient != nullptr)
+  {
+    delete mqttClient;
+    mqttClient = nullptr;
+  }
+  if (atoi(mqtt_port.c_str()) == 8883)
+  {
+#ifdef ESP32
+    mqttClient = static_cast<MqttClient *>(new espMqttClientSecure);
+    if (!mqtt_root_ca_cert.isEmpty() && mqtt_root_ca_cert.length() > 500)
+    {
+      static_cast<espMqttClientSecure *>(mqttClient)->setCACert(mqtt_root_ca_cert.c_str());
+    }
+    else
+    {
+      static_cast<espMqttClientSecure *>(mqttClient)->setCACert(rootCA_LE);
+    }
+    static_cast<espMqttClientSecure *>(mqttClient)->onConnect(onMqttConnect);
+    static_cast<espMqttClientSecure *>(mqttClient)->onDisconnect(onMqttDisconnect);
+    static_cast<espMqttClientSecure *>(mqttClient)->onSubscribe(onMqttSubscribe);
+    static_cast<espMqttClientSecure *>(mqttClient)->onUnsubscribe(onMqttUnsubscribe);
+    static_cast<espMqttClientSecure *>(mqttClient)->onMessage(onMqttMessage);
+    static_cast<espMqttClientSecure *>(mqttClient)->onPublish(onMqttPublish);
+
+    static_cast<espMqttClientSecure *>(mqttClient)->setServer(mqtt_server.c_str(), atoi(mqtt_port.c_str()));
+    static_cast<espMqttClientSecure *>(mqttClient)->setCredentials(mqtt_username.c_str(), mqtt_password.c_str());
+    static_cast<espMqttClientSecure *>(mqttClient)->setClientId(mqtt_client_id.c_str());
+    static_cast<espMqttClientSecure *>(mqttClient)->setWill(ha_availability_topic.c_str(), 1, true, mqtt_payload_unavailable);
+#endif
+  }
+  else
+  {
+    mqttClient = static_cast<MqttClient *>(new espMqttClient);
+    static_cast<espMqttClient*>(mqttClient)->onConnect(onMqttConnect);
+    static_cast<espMqttClient*>(mqttClient)->onDisconnect(onMqttDisconnect);
+    static_cast<espMqttClient*>(mqttClient)->onSubscribe(onMqttSubscribe);
+    static_cast<espMqttClient*>(mqttClient)->onUnsubscribe(onMqttUnsubscribe);
+    static_cast<espMqttClient *>(mqttClient)->onMessage(onMqttMessage);
+    static_cast<espMqttClient *>(mqttClient)->onPublish(onMqttPublish);
+
+    static_cast<espMqttClient *>(mqttClient)->setServer(mqtt_server.c_str(), atoi(mqtt_port.c_str()));
+    static_cast<espMqttClient *>(mqttClient)->setCredentials(mqtt_username.c_str(), mqtt_password.c_str());
+    static_cast<espMqttClient *>(mqttClient)->setClientId(mqtt_client_id.c_str());
+    static_cast<espMqttClient *>(mqttClient)->setWill(ha_availability_topic.c_str(), 1, true, mqtt_payload_unavailable);
+  }
 
   const char *apipch = mqtt_server.c_str();
   IPAddress apip;
@@ -761,11 +813,6 @@ void initMqtt()
   {
     ESP_LOGD(TAG, "UnParsable IP");
   }
-
-  mqttClient.setServer(mqtt_server.c_str(), atoi(mqtt_port.c_str()));
-  mqttClient.setCredentials(mqtt_username.c_str(), mqtt_password.c_str());
-  mqttClient.setClientId(mqtt_client_id.c_str());
-  mqttClient.setWill(ha_availability_topic.c_str(), 1, true, mqtt_payload_unavailable);
 }
 
 // Enable OTA only when connected as a client.
@@ -928,7 +975,7 @@ void handleSaveWifiAndMqtt(AsyncWebServerRequest *request)
     saveWifi(ssid, request->arg("psk"), request->arg("hn"), request->arg("otapwd"));
     if (request->hasArg("mh"))
     {
-      saveMqtt(request->arg("fn"), request->arg("mh"), request->arg("ml"), request->arg("mu"), request->arg("mp"), request->arg("mt"));
+      saveMqtt(request->arg("fn"), request->arg("mh"), request->arg("ml"), request->arg("mu"), request->arg("mp"), request->arg("mt"), "");
     }
     if (request->hasArg("language"))
     {
@@ -1141,7 +1188,7 @@ void handleMqtt(AsyncWebServerRequest *request)
   checkLogin(request);
   if (request->hasArg("save"))
   {
-    saveMqtt(request->arg("fn"), request->arg("mh"), request->arg("ml"), request->arg("mu"), request->arg("mp"), request->arg("mt"));
+    saveMqtt(request->arg("fn"), request->arg("mh"), request->arg("ml"), request->arg("mu"), request->arg("mp"), request->arg("mt"), request->arg("mrcc"));
     String saveRebootPage = FPSTR(html_page_save_reboot);
     // localize
     saveRebootPage.replace("_TXT_M_SAVE_", translatedWord(FL_(txt_m_save)));
@@ -1165,6 +1212,7 @@ void handleMqtt(AsyncWebServerRequest *request)
     mqttPage.replace("_TXT_MQTT_USER_", translatedWord(FL_(txt_mqtt_user)));
     mqttPage.replace("_TXT_MQTT_PASSWORD_", translatedWord(FL_(txt_mqtt_password)));
     mqttPage.replace("_TXT_MQTT_TOPIC_", translatedWord(FL_(txt_mqtt_topic)));
+    mqttPage.replace("_TXT_MQTT_ROOT_CA_CERT_", translatedWord(FL_(txt_mqtt_root_ca_cert)));
     mqttPage.replace("_TXT_SAVE_", translatedWord(FL_(txt_save)));
     mqttPage.replace("_TXT_BACK_", translatedWord(FL_(txt_back)));
     // set data
@@ -1174,6 +1222,7 @@ void handleMqtt(AsyncWebServerRequest *request)
     mqttPage.replace(F("_MQTT_USER_"), mqtt_username);
     mqttPage.replace(F("_MQTT_PASSWORD_"), mqtt_password);
     mqttPage.replace(F("_MQTT_TOPIC_"), mqtt_topic);
+    mqttPage.replace(F("_MQTT_ROOT_CA_CERT_"), mqtt_root_ca_cert);
     sendWrappedHTML(request, mqttPage);
   }
 }
@@ -1373,7 +1422,7 @@ void handleStatus(AsyncWebServerRequest *request)
   {
     statusPage.replace(F("_WIFI_IP_"), "<font color='blue'><b>" + WiFi.localIP().toString() + "</b></font>");
   }
-  if (mqttClient.connected())
+  if (mqttClient != nullptr && mqttClient->connected())
     statusPage.replace(F("_MQTT_STATUS_"), connected);
   else
     statusPage.replace(F("_MQTT_STATUS_"), disconnected);
@@ -1855,9 +1904,9 @@ void handleUploadLoop(AsyncWebServerRequest *request, const String& filename, si
   {
     ESP_LOGD(TAG, "Starting OTA Update");
     // save cpu by disconnect/stop retry mqtt server
-    if (mqttClient.connected())
+    if (mqttClient != nullptr && mqttClient->connected())
     {
-      mqttClient.disconnect();
+      mqttClient->disconnect();
       mqtt_reconnect_timeout = millis() + MQTT_RECONNECT_INTERVAL_MS;
     }
     ota_content_len = request->contentLength();
@@ -1998,11 +2047,13 @@ void hpSettingsChanged()
 
   String mqttOutput;
   serializeJson(rootInfo, mqttOutput);
-
-  if (!mqttClient.publish(ha_settings_topic.c_str(), 1, true, mqttOutput.c_str()))
+  if (mqttClient != nullptr)
   {
-    if (_debugModeLogs)
-      mqttClient.publish(ha_debug_logs_topic.c_str(), 1, false, (char *)("Failed to publish hp settings"));
+    if (!mqttClient->publish(ha_settings_topic.c_str(), 1, true, mqttOutput.c_str()))
+    {
+      if (_debugModeLogs)
+        mqttClient->publish(ha_debug_logs_topic.c_str(), 1, false, (char *)("Failed to publish hp settings"));
+    }
   }
   mqttOutput = "";
   hpStatusChanged(hp.getStatus());
@@ -2163,11 +2214,13 @@ void hpStatusChanged(heatpumpStatus currentStatus)
   rootInfo["upTime"] = getUpTime();
   String mqttOutput;
   serializeJson(rootInfo, mqttOutput);
-
-  if (!mqttClient.publish(ha_state_topic.c_str(), 1, false, mqttOutput.c_str()))
+  if (mqttClient != nullptr)
   {
-    if (_debugModeLogs)
-      mqttClient.publish(ha_debug_logs_topic.c_str(), 1, false, (char *)("Failed to publish hp status change"));
+    if (!mqttClient->publish(ha_state_topic.c_str(), 1, false, mqttOutput.c_str()))
+    {
+      if (_debugModeLogs)
+        mqttClient->publish(ha_debug_logs_topic.c_str(), 1, false, (char *)("Failed to publish hp status change"));
+    }
   }
   mqttOutput = "";
 }
@@ -2194,10 +2247,13 @@ void sendKeepAlive()
     return;
   }
   // send keep alive message
-  if (!mqttClient.publish(ha_availability_topic.c_str(), 1, true, mqtt_payload_available))
+  if (mqttClient != nullptr)
   {
-    if (_debugModeLogs)
-      mqttClient.publish(ha_debug_logs_topic.c_str(), 1, false, (char *)"Failed to publish avialable status");
+    if (!mqttClient->publish(ha_availability_topic.c_str(), 1, true, mqtt_payload_available))
+    {
+      if (_debugModeLogs)
+        mqttClient->publish(ha_debug_logs_topic.c_str(), 1, false, (char *)"Failed to publish avialable status");
+    }
   }
 }
 
@@ -2221,9 +2277,12 @@ void hpPacketDebug(byte *packet, unsigned int length, const char *packetDirectio
     root[packetDirection] = message;
     String mqttOutput;
     serializeJson(root, mqttOutput);
-    if (!mqttClient.publish(ha_debug_pckts_topic.c_str(), 1, false, mqttOutput.c_str()))
+    if (mqttClient != nullptr)
     {
-      mqttClient.publish(ha_debug_logs_topic.c_str(), 1, false, (char *)("Failed to publish to heatpump/debug topic"));
+      if (!mqttClient->publish(ha_debug_pckts_topic.c_str(), 1, false, mqttOutput.c_str()))
+      {
+        mqttClient->publish(ha_debug_logs_topic.c_str(), 1, false, (char *)("Failed to publish to heatpump/debug topic"));
+      }
     }
   }
 }
@@ -2235,28 +2294,26 @@ void hpSendLocalState()
 
   String mqttOutput;
   serializeJson(rootInfo, mqttOutput);
-  mqttClient.publish(ha_debug_pckts_topic.c_str(), 1, false, mqttOutput.c_str());
-  if (!mqttClient.publish(ha_state_topic.c_str(), 1, false, mqttOutput.c_str()))
+  if (mqttClient != nullptr)
   {
-    if (_debugModeLogs)
-      mqttClient.publish(ha_debug_logs_topic.c_str(), 1, false, (char *)("Failed to publish dummy hp status change"));
+    mqttClient->publish(ha_debug_pckts_topic.c_str(), 1, false, mqttOutput.c_str());
+    if (!mqttClient->publish(ha_state_topic.c_str(), 1, false, mqttOutput.c_str()))
+    {
+      if (_debugModeLogs)
+        mqttClient->publish(ha_debug_logs_topic.c_str(), 1, false, (char *)("Failed to publish dummy hp status change"));
+    }
   }
   mqttOutput = "";
   // Restart counter for waiting enought time for the unit to update before sending a state packet
   lastTempSend = millis();
 }
 
-void mqttCallback(char *topic, char *payload, unsigned int length)
+void mqttCallback(const char *topic, const uint8_t *payload, const unsigned int length)
 {
-
   // Copy payload into message buffer
-  char message[length + 1];
-  for (unsigned int i = 0; i < length; i++)
-  {
-    message[i] = (char)payload[i];
-  }
+  char *message = new char[length + 1];
+  memcpy(message, payload, length);
   message[length] = '\0';
-
   bool update = false;
   // HA topics
   // Receive power topic
@@ -2388,13 +2445,13 @@ void mqttCallback(char *topic, char *payload, unsigned int length)
     {
       _debugModePckts = true;
       saveCurrentOthers();
-      mqttClient.publish(ha_debug_pckts_topic.c_str(), 1, false, (char *)("Debug packets mode enabled"));
+      mqttClient->publish(ha_debug_pckts_topic.c_str(), 1, false, (char *)("Debug packets mode enabled"));
     }
     else if (strcmp(message, "off") == 0)
     {
       _debugModePckts = false;
       saveCurrentOthers();
-      mqttClient.publish(ha_debug_pckts_topic.c_str(), 1, false, (char *)("Debug packets mode disabled"));
+      mqttClient->publish(ha_debug_pckts_topic.c_str(), 1, false, (char *)("Debug packets mode disabled"));
     }
   }
   else if (strcmp(topic, ha_debug_logs_set_topic.c_str()) == 0)
@@ -2403,13 +2460,13 @@ void mqttCallback(char *topic, char *payload, unsigned int length)
     {
       _debugModeLogs = true;
       saveCurrentOthers();
-      mqttClient.publish(ha_debug_logs_topic.c_str(), 1, false, (char *)"Debug mode enabled");
+      mqttClient->publish(ha_debug_logs_topic.c_str(), 1, false, (char *)"Debug mode enabled");
     }
     else if (strcmp(message, "off") == 0)
     {
       _debugModeLogs = false;
       saveCurrentOthers();
-      mqttClient.publish(ha_debug_logs_topic.c_str(), 1, false, (char *)"Debug mode disabled");
+      mqttClient->publish(ha_debug_logs_topic.c_str(), 1, false, (char *)"Debug mode disabled");
     }
   }
   else if (strcmp(topic, ha_system_set_topic.c_str()) == 0)
@@ -2452,7 +2509,7 @@ void mqttCallback(char *topic, char *payload, unsigned int length)
   }
   else
   {
-    mqttClient.publish(ha_debug_logs_topic.c_str(), 1, false, strcat((char *)"heatpump: wrong mqtt topic: ", topic));
+    mqttClient->publish(ha_debug_logs_topic.c_str(), 1, false, strcat((char *)"heatpump: wrong mqtt topic: ", topic));
   }
 
   if (update)
@@ -2466,6 +2523,7 @@ void mqttCallback(char *topic, char *payload, unsigned int length)
     requestHpUpdate = true;
     requestHpUpdateTime = millis() + 10;
   }
+  delete[] message;
 }
 
 void haConfigTemp(String tag, String icon) {
@@ -2493,7 +2551,7 @@ void haConfigTemp(String tag, String icon) {
   String mqttOutput;
   serializeJson(haConfig, mqttOutput);
   String ha_config_topic_sensor = "homeassistant/sensor/hvac_" + getId() + "_" + tag + "/config";
-  mqttClient.publish(ha_config_topic_sensor.c_str(), 1, true, mqttOutput.c_str());
+  mqttClient->publish(ha_config_topic_sensor.c_str(), 1, true, mqttOutput.c_str());
 }
 
 void haConfigFreq(String tag, String unit, String icon) {
@@ -2522,7 +2580,7 @@ void haConfigFreq(String tag, String unit, String icon) {
   String mqttOutput;
   serializeJson(haConfig, mqttOutput);
   String ha_config_topic_sensor = "homeassistant/sensor/hvac_" + getId() + "_" + tag + "/config";
-  mqttClient.publish(ha_config_topic_sensor.c_str(), 1, true, mqttOutput.c_str());
+  mqttClient->publish(ha_config_topic_sensor.c_str(), 1, true, mqttOutput.c_str());
 }
 
 void haConfigTime(String tag, String unit, String icon)
@@ -2552,7 +2610,7 @@ void haConfigTime(String tag, String unit, String icon)
   String mqttOutput;
   serializeJson(haConfig, mqttOutput);
   String ha_config_topic_sensor = "homeassistant/sensor/hvac_" + getId() + "_" + tag + "/config";
-  mqttClient.publish(ha_config_topic_sensor.c_str(), 1, true, mqttOutput.c_str());
+  mqttClient->publish(ha_config_topic_sensor.c_str(), 1, true, mqttOutput.c_str());
 }
 
 void sendHaConfig()
@@ -2640,7 +2698,7 @@ void sendHaConfig()
 
   String mqttOutput;
   serializeJson(haConfig, mqttOutput);
-  mqttClient.publish(ha_config_topic.c_str(), 1, true, mqttOutput.c_str());
+  mqttClient->publish(ha_config_topic.c_str(), 1, true, mqttOutput.c_str());
 
   // Temperature sensors
   haConfigTemp("roomTemperature", "mdi:thermometer");
@@ -2653,10 +2711,12 @@ void sendHaConfig()
 void mqttConnect()
 {
   ESP_LOGD(TAG, "Connecting to MQTT...");
-
-  if (!mqtt_server.isEmpty() && !mqtt_port.isEmpty())
+  if (mqttClient != nullptr)
   {
-    mqttClient.connect();
+    if (!mqtt_server.isEmpty() && !mqtt_port.isEmpty())
+    {
+      mqttClient->connect();
+    }
   }
 }
 
@@ -2861,14 +2921,17 @@ void loop()
       hp.sync();
     }
     // check mqtt status and retry
-    if (wifiConnected and (!mqtt_connected || !mqttClient.connected()) and millis() > mqtt_reconnect_timeout) // retry to connect mqtt
+    if (wifiConnected and (!mqtt_connected || !mqttClient->connected()) and millis() > mqtt_reconnect_timeout) // retry to connect mqtt
     {
       mqtt_reconnect_timeout = millis() + MQTT_RECONNECT_INTERVAL_MS; // only retry next 5 seconds to prevent crash
+      if (mqttClient != nullptr)
+      {
 #ifdef ESP32
-      xTimerStart(mqttReconnectTimer, 0);
+        xTimerStart(mqttReconnectTimer, 0);
 #else
-      mqttConnect();
+        mqttConnect();
 #endif
+      }
     }
   }
   else
@@ -2877,6 +2940,12 @@ void loop()
   }
   if (!captive and mqtt_config)
   {
+#ifdef ESP8266
+    if (mqttClient != nullptr)
+    {
+      mqttClient->loop();
+    }
+#endif
     if (wifiConnected && mqtt_connected)
     { 
       // only send the temperature every SEND_ROOM_TEMP_INTERVAL_MS (millis rollover tolerant)
@@ -3008,22 +3077,22 @@ void onMqttConnect(bool sessionPresent)
   ESP_LOGD(TAG, "Connected to MQTT. Session present: %d", sessionPresent);
   mqtt_connected = true;
 
-  mqttClient.subscribe(ha_system_set_topic.c_str(), 1);
-  mqttClient.subscribe(ha_debug_pckts_set_topic.c_str(), 1);
-  mqttClient.subscribe(ha_debug_logs_set_topic.c_str(), 1);
-  mqttClient.subscribe(ha_mode_set_topic.c_str(), 1);
-  mqttClient.subscribe(ha_fan_set_topic.c_str(), 1);
-  mqttClient.subscribe(ha_temp_set_topic.c_str(), 1);
-  mqttClient.subscribe(ha_vane_set_topic.c_str(), 1);
-  mqttClient.subscribe(ha_wide_vane_set_topic.c_str(), 1);
-  mqttClient.subscribe(ha_remote_temp_set_topic.c_str(), 1);
-  mqttClient.subscribe(ha_custom_packet.c_str(), 1);
+  mqttClient->subscribe(ha_system_set_topic.c_str(), 1);
+  mqttClient->subscribe(ha_debug_pckts_set_topic.c_str(), 1);
+  mqttClient->subscribe(ha_debug_logs_set_topic.c_str(), 1);
+  mqttClient->subscribe(ha_mode_set_topic.c_str(), 1);
+  mqttClient->subscribe(ha_fan_set_topic.c_str(), 1);
+  mqttClient->subscribe(ha_temp_set_topic.c_str(), 1);
+  mqttClient->subscribe(ha_vane_set_topic.c_str(), 1);
+  mqttClient->subscribe(ha_wide_vane_set_topic.c_str(), 1);
+  mqttClient->subscribe(ha_remote_temp_set_topic.c_str(), 1);
+  mqttClient->subscribe(ha_custom_packet.c_str(), 1);
   // send online message
-  mqttClient.publish(ha_availability_topic.c_str(), 1, true, mqtt_payload_available);
+  mqttClient->publish(ha_availability_topic.c_str(), 1, true, mqtt_payload_available);
   sendHaConfig();
 }
 
-void onMqttDisconnect(AsyncMqttClientDisconnectReason reason)
+void onMqttDisconnect(espMqttClientTypes::DisconnectReason reason)
 {
   mqtt_disconnect_reason = (uint8_t)reason;
   mqtt_connected = false;
@@ -3039,15 +3108,20 @@ void onMqttDisconnect(AsyncMqttClientDisconnectReason reason)
   }
 }
 
-// void onMqttSubscribe(uint16_t packetId, uint8_t qos) {
-//   ESP_LOGD(TAG, "Subscribe acknowledged. packetId: %d, qos: %d", packetId, qos);
-// }
+void onMqttSubscribe(uint16_t packetId, const espMqttClientTypes::SubscribeReturncode *codes, size_t len)
+{
+  for (size_t i = 0; i < len; ++i)
+  {
+    ESP_LOGD(TAG, "Subscribe acknowledged. packetId: %d, qos: %d", packetId, static_cast<uint8_t>(codes[i]));
+  }
+}
 
-// void onMqttUnsubscribe(uint16_t packetId) {
-//   ESP_LOGD(TAG, "Unsubscribe acknowledged. packetId:  %d", packetId);
-// }
+void onMqttUnsubscribe(uint16_t packetId)
+{
+  ESP_LOGD(TAG, "Unsubscribe acknowledged. packetId:  %d", packetId);
+}
 
-void onMqttMessage(char *topic, char *payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total)
+void onMqttMessage(const espMqttClientTypes::MessageProperties& properties, const char* topic, const uint8_t* payload, size_t len, size_t index, size_t total)
 {
   ESP_LOGD(TAG, "Publish received. topic: %s, qos: %d dup: %d, retain: %d", topic, properties.qos, properties.dup, properties.retain);
   ESP_LOGD(TAG, "Publish received. len: %d, index: %d, total: %d", len, index, total);

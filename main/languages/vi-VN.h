@@ -78,13 +78,14 @@ namespace vi
   const char txt_mqtt_fn_desc[] PROGMEM = "(trừ khoảng trống và ký tự lạ)";
   const char txt_mqtt_host[] PROGMEM = "Tên miền hoặc IP";
   const char txt_mqtt_port[] PROGMEM = "Cổng";
-  const char txt_mqtt_port_desc[] PROGMEM = "(mặc định 1883, trừ 8883)";
+  const char txt_mqtt_port_desc[] PROGMEM = "(mặc định 1883, ESP32: 8883 yêu cầu CERT)";
   const char txt_mqtt_user[] PROGMEM = "Tài khoản";
   const char txt_mqtt_password[] PROGMEM = "Mật khẩu";
   const char txt_mqtt_topic[] PROGMEM = "Chủ đề";
   const char txt_mqtt_ph_topic[] PROGMEM = "Nhập chủ đề Mqtt";
   const char txt_mqtt_ph_user[] PROGMEM = "Nhập tài khoản Mqtt";
   const char txt_mqtt_ph_pwd[] PROGMEM = "Nhập mật khẩu Mqtt";
+  const char txt_mqtt_root_ca_cert[] PROGMEM = "CA-Root-Certificate (mặc định Letsencrypt)";
 
   // Page Others
   const char txt_others_title[] PROGMEM = "Thông số Khác";
@@ -92,8 +93,8 @@ namespace vi
   const char txt_others_hatopic[] PROGMEM = "Chủ đề tự động khám phá";
   const char txt_others_debug_packets[] PROGMEM = "MQTT gỡ lỗi gói tin";
   const char txt_others_debug_log[] PROGMEM = "MQTT gỡ lỗi nhật ký";
-  const char txt_others_tx_pin[] PROGMEM = "Chân TX (ESP32, 0 dùng Serial)";
-  const char txt_others_rx_pin[] PROGMEM = "Chân RX (ESP32, 0 dùng Serial)";
+  const char txt_others_tx_pin[] PROGMEM = "Chân TX (ESP32, 0 dùng UART1)";
+  const char txt_others_rx_pin[] PROGMEM = "Chân RX (ESP32, 0 dùng UART1)";
   
   // Page Status
   const char txt_status_title[] PROGMEM = "Trạng thái";

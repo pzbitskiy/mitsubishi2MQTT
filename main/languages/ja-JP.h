@@ -76,15 +76,16 @@ namespace ja
   const char txt_mqtt_title[] PROGMEM = "MQTT設定";
   const char txt_mqtt_fn[] PROGMEM = "フレンドリー名";
   const char txt_mqtt_host[] PROGMEM = "ホスト";
-  const char txt_mqtt_port[] PROGMEM = "ポート（初期値 1883）";
+  const char txt_mqtt_port[] PROGMEM = "ポート";
   const char txt_mqtt_user[] PROGMEM = "ユーザー名";
   const char txt_mqtt_password[] PROGMEM = "パスワード";
   const char txt_mqtt_topic[] PROGMEM = "トピック";
   const char txt_mqtt_fn_desc[] PROGMEM = "(no space or special char)";
-  const char txt_mqtt_port_desc[] PROGMEM = "(default 1883, not support 8883)";
+  const char txt_mqtt_port_desc[] PROGMEM = "(初期値 1883, ESP32: 8883 CERT require)";
   const char txt_mqtt_ph_topic[] PROGMEM = "Enter Mqtt topic";
   const char txt_mqtt_ph_user[] PROGMEM = "Enter Mqtt user";
   const char txt_mqtt_ph_pwd[] PROGMEM = "Enter Mqtt password";
+  const char txt_mqtt_root_ca_cert[] PROGMEM = "CA-Root-Certificate (default Letsencrypt)";
 
   // Page Others
   const char txt_others_title[] PROGMEM = "その他設定";
@@ -92,8 +93,8 @@ namespace ja
   const char txt_others_hatopic[] PROGMEM = "HA自動検出トピック";
   const char txt_others_debug_packets[] PROGMEM = "MQTT topic debug packets";
   const char txt_others_debug_log[] PROGMEM = "MQTT topic debug logs";
-  const char txt_others_tx_pin[] PROGMEM = "TX pin (ESP32, 0 use Serial)";
-  const char txt_others_rx_pin[] PROGMEM = "RX pin (ESP32, 0 use Serial)";
+  const char txt_others_tx_pin[] PROGMEM = "TX pin (ESP32, 0 use UART1)";
+  const char txt_others_rx_pin[] PROGMEM = "RX pin (ESP32, 0 use UART1)";
   
   // Page Status
   const char txt_status_title[] PROGMEM = "ステータス";

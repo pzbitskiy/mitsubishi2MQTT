@@ -40,8 +40,8 @@ The software and hardware has been tested by the author for 5 years on the follo
 
 This circuit using by the author, here is some [boards](https://github.com/dzungpv/mitsubishi2MQTT/blob/master/hardware/Before_Install.jpg) before install.
 
-You can also use ESP-32 module for more processing power. If using ESP-32 by default app use Serial (serial 0 port).
-You can assign any compatible pin in the SETUP->OTHERS to use custom pin, example TX: 26, RX: 27, check ESP-32 manual for pin, when TX and RX set it will use Serial2 port. 
+You can also use ESP-32 module for more processing power. If using ESP-32 by default app use UART1 (TX - GPIO 10, RX - GPIO 9)
+You can assign any compatible pin in the SETUP->OTHERS to use custom pin, example TX: 26, RX: 27, check ESP-32 manual for pin, when TX and RX set it will use UART2 port. Better not using UART0, it is default for logs and flash the chip.
 You can see more pictures in [`hardware`](https://github.com/dzungpv/mitsubishi2MQTT/tree/master/hardware) folder.
 ***
 
@@ -110,6 +110,12 @@ The `topic` is: "mqtt_topic/mqtt_friendly_name"
 - topic/debug/logs/set on off
 - topic/custom/send as example "fc 42 01 30 10 02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 7b " see https://github.com/SwiCago/HeatPump/blob/master/src/HeatPump.h
 - topic/system/set to control the device with commands: "restart": reboot the device, "factory": reset device to fatory state.
+***
+
+***
+
+## MQTT secure connection
+MQTT secure connection via `8883` port only support ESP32, app inlude default CA-Root-Certificate for Letsencrypt base domain. You can set your Certificate in the Setup -> Unit
 ***
 
 ## Special thanks
