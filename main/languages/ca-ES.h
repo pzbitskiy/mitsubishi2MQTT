@@ -17,7 +17,7 @@ namespace ca
 {
   // Breadcum
   const char txt_setup_page[] PROGMEM = "Pàgina de configuració";
-  const char txt_upload_fw_page[] PROGMEM = "Carregueu el microprogramari";
+  const char txt_upload_fw_page[] PROGMEM = "Càrrega del microprogramari";
   const char txt_fw_update_page[] PROGMEM = "Actualització del microprogramari";
   const char txt_check_fw_page[] PROGMEM = "Comproveu el nou microprogramari";
   const char txt_home_page[] PROGMEM = "Pàgina d'inici";
@@ -59,7 +59,7 @@ namespace ca
   const char txt_f_celsius[] PROGMEM = "Celsius";
   const char txt_f_fh[] PROGMEM = "Fahrenheit";
   const char txt_f_allmodes[] PROGMEM = "Tots els modes";
-  const char txt_f_noheat[] PROGMEM = "Tots els modes excepte calor";
+  const char txt_f_noheat[] PROGMEM = "Tots els modes excepte calefacció";
   const char txt_f_noquiet[] PROGMEM = "No suporta mode silenciós";
   const char txt_f_low[] PROGMEM = "BAIX";
   const char txt_f_medium[] PROGMEM = "MITJÀ";
@@ -83,7 +83,7 @@ namespace ca
   const char txt_mqtt_password[] PROGMEM = "Contrasenya";
   const char txt_mqtt_topic[] PROGMEM = "Tema";
   const char txt_mqtt_ph_topic[] PROGMEM = "Introduïu el tema Mqtt";
-  const char txt_mqtt_ph_user[] PROGMEM = "Introduïu l'usuari Mqtt";
+  const char txt_mqtt_ph_user[] PROGMEM = "Introduïu l&#39;usuari Mqtt";
   const char txt_mqtt_ph_pwd[] PROGMEM = "Introduïu la contrasenya Mqtt";
 
   // Page Others
@@ -152,7 +152,7 @@ namespace ca
   const char txt_login_sucess[] PROGMEM = "Inici de sessió correcte, se us redirigirà d'aquí a uns segons";
   const char txt_login_fail[] PROGMEM = "Nom d'usuari/contrasenya incorrectes! Torna-ho a provar.";
   const char txt_login_open_status[] PROGMEM = "Obre la pàgina d'estat";
-  const char txt_login_ph_user[] PROGMEM = "Introduïu el nom d'usuari";
+  const char txt_login_ph_user[] PROGMEM = "Introduïu el nom d&#39;usuari";
   const char txt_login_ph_pwd[] PROGMEM = "Introduïu la contrasenya";
 
   // Page Upgrade
