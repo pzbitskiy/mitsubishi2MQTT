@@ -15,3 +15,6 @@
 	path = components/ArduinoJson
 	url = https://github.com/bblanchon/ArduinoJson.git
 	branch = 6.x
+[submodule "components/espMqttClient"]
+	path = components/espMqttClient
+	url = https://github.com/dzungpv/espMqttClient.git
