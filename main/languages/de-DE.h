@@ -36,7 +36,7 @@ namespace de
   const char txt_reset[] PROGMEM = "Einstellungen zurücksetzen";
   const char txt_reset_confirm[] PROGMEM = "Willst du wirklich alle Einstellungen zurücksetzen?";
   const char txt_mqtt_fn_desc[] PROGMEM = "(no space or special char)";
-  const char txt_mqtt_port_desc[] PROGMEM = "(default 1883, 8883 CERT require)";
+  const char txt_mqtt_port_desc[] PROGMEM = "(default 1883, ESP32: 8883 CERT require)";
   const char txt_mqtt_ph_topic[] PROGMEM = "Enter Mqtt topic";
   const char txt_mqtt_ph_user[] PROGMEM = "Enter Mqtt user";
   const char txt_mqtt_ph_pwd[] PROGMEM = "Enter Mqtt password";

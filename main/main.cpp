@@ -763,8 +763,8 @@ void initMqtt()
   }
   if (atoi(mqtt_port.c_str()) == 8883)
   {
-    mqttClient = static_cast<MqttClient *>(new espMqttClientSecure);
 #ifdef ESP32
+    mqttClient = static_cast<MqttClient *>(new espMqttClientSecure);
     if (!mqtt_root_ca_cert.isEmpty() && mqtt_root_ca_cert.length() > 500)
     {
       static_cast<espMqttClientSecure *>(mqttClient)->setCACert(mqtt_root_ca_cert.c_str());
@@ -773,21 +773,10 @@ void initMqtt()
     {
       static_cast<espMqttClientSecure *>(mqttClient)->setCACert(rootCA_LE);
     }
-#else
-    // static_cast<espMqttClientSecure *>(mqttClient)->setInsecure(); // ESP8266
-    if (sizeof(mqtt_finger_print) > 19 && mqtt_finger_print[0] != 0)
-    {
-      static_cast<espMqttClientSecure *>(mqttClient)->setFingerprint(mqtt_finger_print);
-    }
-    else
-    {
-      static_cast<espMqttClientSecure *>(mqttClient)->setFingerprint(fingerprint);
-    }
-#endif
-    static_cast<espMqttClientSecure*>(mqttClient)->onConnect(onMqttConnect);
-    static_cast<espMqttClientSecure*>(mqttClient)->onDisconnect(onMqttDisconnect);
-    static_cast<espMqttClientSecure*>(mqttClient)->onSubscribe(onMqttSubscribe);
-    static_cast<espMqttClientSecure*>(mqttClient)->onUnsubscribe(onMqttUnsubscribe);
+    static_cast<espMqttClientSecure *>(mqttClient)->onConnect(onMqttConnect);
+    static_cast<espMqttClientSecure *>(mqttClient)->onDisconnect(onMqttDisconnect);
+    static_cast<espMqttClientSecure *>(mqttClient)->onSubscribe(onMqttSubscribe);
+    static_cast<espMqttClientSecure *>(mqttClient)->onUnsubscribe(onMqttUnsubscribe);
     static_cast<espMqttClientSecure *>(mqttClient)->onMessage(onMqttMessage);
     static_cast<espMqttClientSecure *>(mqttClient)->onPublish(onMqttPublish);
 
@@ -795,6 +784,7 @@ void initMqtt()
     static_cast<espMqttClientSecure *>(mqttClient)->setCredentials(mqtt_username.c_str(), mqtt_password.c_str());
     static_cast<espMqttClientSecure *>(mqttClient)->setClientId(mqtt_client_id.c_str());
     static_cast<espMqttClientSecure *>(mqttClient)->setWill(ha_availability_topic.c_str(), 1, true, mqtt_payload_unavailable);
+#endif
   }
   else
   {

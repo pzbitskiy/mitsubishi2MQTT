@@ -112,6 +112,12 @@ The `topic` is: "mqtt_topic/mqtt_friendly_name"
 - topic/system/set to control the device with commands: "restart": reboot the device, "factory": reset device to fatory state.
 ***
 
+***
+
+## MQTT secure connection
+MQTT secure connection via `8883` port only support ESP32, app inlude default CA-Root-Certificate for Letsencrypt base domain. You can set your Certificate in the Setup -> Unit
+***
+
 ## Special thanks
 SwiCago for the great libraries: https://github.com/SwiCago/HeatPump
 

@@ -78,7 +78,7 @@ namespace ca
   const char txt_mqtt_fn_desc[] PROGMEM = "(sense espais ni caràcters especials)";
   const char txt_mqtt_host[] PROGMEM = "Anfitrió o IP";
   const char txt_mqtt_port[] PROGMEM = "Port";
-  const char txt_mqtt_port_desc[] PROGMEM = "(1883 per defecte, 8883 CERT requereix)";
+  const char txt_mqtt_port_desc[] PROGMEM = "(1883 per defecte, ESP32: 8883 CERT requereix)";
   const char txt_mqtt_user[] PROGMEM = "Usuari";
   const char txt_mqtt_password[] PROGMEM = "Contrasenya";
   const char txt_mqtt_topic[] PROGMEM = "Tema";

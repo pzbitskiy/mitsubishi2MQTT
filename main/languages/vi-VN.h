@@ -78,7 +78,7 @@ namespace vi
   const char txt_mqtt_fn_desc[] PROGMEM = "(trừ khoảng trống và ký tự lạ)";
   const char txt_mqtt_host[] PROGMEM = "Tên miền hoặc IP";
   const char txt_mqtt_port[] PROGMEM = "Cổng";
-  const char txt_mqtt_port_desc[] PROGMEM = "(mặc định 1883, 8883 yêu cầu CERT)";
+  const char txt_mqtt_port_desc[] PROGMEM = "(mặc định 1883, ESP32: 8883 yêu cầu CERT)";
   const char txt_mqtt_user[] PROGMEM = "Tài khoản";
   const char txt_mqtt_password[] PROGMEM = "Mật khẩu";
   const char txt_mqtt_topic[] PROGMEM = "Chủ đề";

@@ -93,9 +93,6 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
 -----END CERTIFICATE-----
 )====";
 
-// test.mosquitto.org
-const uint8_t fingerprint[] = {0xee, 0xbc, 0x4b, 0xf8, 0x57, 0xe3, 0xd3, 0xe4, 0x07, 0x54, 0x23, 0x1e, 0xf0, 0xc8, 0xa1, 0x56, 0xe0, 0xd3, 0x1a, 0x1c};
-
 // wifi, mqtt and heatpump client instances
 MqttClient* mqttClient = nullptr; // espMqttClient support both in secure and secure mqtt
 
@@ -209,7 +206,6 @@ String mqtt_username;
 String mqtt_password;
 String mqtt_topic = "mitsubishi2mqtt";
 String mqtt_root_ca_cert;
-uint8_t mqtt_finger_print[20] = {};
 String mqtt_client_id;
 const PROGMEM char *mqtt_payload_available = "online";
 const PROGMEM char *mqtt_payload_unavailable = "offline";

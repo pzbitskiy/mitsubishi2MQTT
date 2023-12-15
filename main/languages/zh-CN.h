@@ -81,7 +81,7 @@ namespace zh
   const char txt_mqtt_password[] PROGMEM = "密码";
   const char txt_mqtt_topic[] PROGMEM = "主题";
   const char txt_mqtt_fn_desc[] PROGMEM = "(no space or special char)";
-  const char txt_mqtt_port_desc[] PROGMEM = "(default 1883, not support 8883)";
+  const char txt_mqtt_port_desc[] PROGMEM = "(default 1883, ESP32: 8883 CERT require)";
   const char txt_mqtt_ph_topic[] PROGMEM = "Enter Mqtt topic";
   const char txt_mqtt_ph_user[] PROGMEM = "Enter Mqtt user";
   const char txt_mqtt_ph_pwd[] PROGMEM = "Enter Mqtt password";

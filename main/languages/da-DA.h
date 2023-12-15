@@ -80,7 +80,7 @@ namespace da
   const char txt_mqtt_password[] PROGMEM = "Password";
   const char txt_mqtt_topic[] PROGMEM = "Topic";
   const char txt_mqtt_fn_desc[] PROGMEM = "(no space or special char)";
-  const char txt_mqtt_port_desc[] PROGMEM = "(default 1883, 8883 Cert requereix)";
+  const char txt_mqtt_port_desc[] PROGMEM = "(default 1883, ESP32: 8883 Cert requereix)";
   const char txt_mqtt_ph_topic[] PROGMEM = "Enter Mqtt topic";
   const char txt_mqtt_ph_user[] PROGMEM = "Enter Mqtt user";
   const char txt_mqtt_ph_pwd[] PROGMEM = "Enter Mqtt password";
