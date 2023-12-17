@@ -1,12 +1,14 @@
 **mitsubishi2MQTT**
 ESP8266/ESP32 module to control Mitsubishi Electric HVAC unit. Support control with Home Assistant, buit-in web app and MQTT.
 
+![build status](https://github.com/dzungpv/mitsubishi2MQTT/actions/workflows/build.yml/badge.svg)
+
 ***
 
 ## Screenshots:
-| ![Main](https://github.com/dzungpv/mitsubishi2MQTT/blob/master/images/main_page.jpeg) | ![Control](https://github.com/dzungpv/mitsubishi2MQTT/blob/master/images/control_page.jpeg) | ![Config](https://github.com/dzungpv/mitsubishi2MQTT/blob/master/images/config_page.jpeg) |
+| ![Main](https://github.com/dzungpv/mitsubishi2MQTT/blob/master/images/ha_ui_climate.jpeg) | ![Control](https://github.com/dzungpv/mitsubishi2MQTT/blob/master/images/control_page.jpeg) | ![Config](https://github.com/dzungpv/mitsubishi2MQTT/blob/master/images/config_page.jpeg) |
 | --------------------------------------- | --------------------------------------- | --------------------------------------- |                                
-| ![Init](https://github.com/dzungpv/mitsubishi2MQTT/blob/master/images/initial_setup.jpeg) | ![Unit](https://github.com/dzungpv/mitsubishi2MQTT/blob/master/images/unit_page.jpeg) | ![Status](https://github.com/dzungpv/mitsubishi2MQTT/blob/master/images/status_page.jpeg) |
+| ![Init](https://github.com/dzungpv/mitsubishi2MQTT/blob/master/images/ha_ui_mqtt.jpeg) | ![Unit](https://github.com/dzungpv/mitsubishi2MQTT/blob/master/images/unit_page.jpeg) | ![Status](https://github.com/dzungpv/mitsubishi2MQTT/blob/master/images/status_page.jpeg) |
 
 ***
 
