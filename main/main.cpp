@@ -262,7 +262,7 @@ void setup()
 #if defined(ESP32)
     if (HP_TX > 0 && HP_RX > 0)
     {
-      hp.connect(&Serial2, HP_RX, HP_TX);
+      hp.connect(&Serial1, HP_RX, HP_TX);
     }
     else
     {
