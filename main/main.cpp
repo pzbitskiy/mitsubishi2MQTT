@@ -127,11 +127,12 @@ String getFanModeFromHp(String modeFromHp);
 
 void setup()
 {
-#ifdef ESP32
-  initNVS();
-#endif
   // Start serial for debug before HVAC connect to serial
   Serial.begin(115200);
+#ifdef ESP32
+  Serial.setDebugOutput(true);
+  initNVS();
+#endif
   ESP_LOGD(TAG, "Starting  %s", appName);
   // Mount SPIFFS filesystem
   if (SPIFFS.begin())
@@ -266,7 +267,8 @@ void setup()
     }
     else
     {
-      hp.connect(&Serial1);
+      hp.connect(&Serial);
+      esp_log_level_set("*", ESP_LOG_NONE); // disable all logs because we use UART0 connect to HP
     }
 #else
     hp.connect(&Serial);
