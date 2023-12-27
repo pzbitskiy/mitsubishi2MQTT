@@ -3266,7 +3266,7 @@ String getCurrentTime()
 
   time(&now);
   // Set timezone to Vietnam Standard Time
-  setenv("TZ", "ICT-7", 1);
+  setenv("TZ", timezone.c_str(), 1);
   tzset();
 
   localtime_r(&now, &timeinfo);
