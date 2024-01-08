@@ -2778,7 +2778,7 @@ bool connectWifi()
   ESP_LOGD(TAG, "%s", WiFi.localIP().toString().c_str());
   ticker.detach(); // Stop blinking the LED because now we are connected:)
   // keep LED off (For Wemos D1-Mini)
-  digitalWrite(blueLedPin, LOW);
+  digitalWrite(blueLedPin, HIGH);
   // Auto reconnected
   WiFi.setAutoReconnect(true);
   WiFi.persistent(true);
