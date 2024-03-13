@@ -2558,7 +2558,7 @@ void haConfigTemp(String tag, String icon) {
 
   haConfig["dev_cla"] = "temperature";
   haConfig["stat_t"] = ha_state_topic;
-  haConfig["unit_of_meas"] = "°C";
+  haConfig["unit_of_meas"] = useFahrenheit ? "°F" : "°C";
   haConfig["val_tpl"] = "{{value_json." + tag + "}}";
 
   JsonObject haConfigDevice = haConfig.createNestedObject("device");
