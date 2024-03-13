@@ -2391,10 +2391,10 @@ void mqttCallback(const char *topic, const uint8_t *payload, const unsigned int 
       }
       else
       {
-        modeUpper = NULL;
+        modeUpper = "";
       }
 
-      if (modeUpper) {
+      if (modeUpper.length() > 0) {
         hpSendLocalState();
         hp.setPowerSetting("ON");
         hp.setModeSetting(modeUpper.c_str());
