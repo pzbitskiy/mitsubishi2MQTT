@@ -153,7 +153,13 @@ unsigned long requestWifiScanTime = 0;
 #define WIFI_SCAN_PERIOD 120000
 unsigned lastWifiScanMillis;
 
+#ifdef GIT_VERSION
+#define STRING_(x) #x
+#define STRING(x)  STRING_(x)
+const PROGMEM char* m2mqtt_version = STRING(GIT_VERSION);
+#else
 const PROGMEM char *m2mqtt_version = "2024.07.16";
+#endif
 
 // Define global variables for files
 int HP_TX = 0; // variable for the ESP32 custom TX pin, 0 is the defautl and it use hardware serial 0
