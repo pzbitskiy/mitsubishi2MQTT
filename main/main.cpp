@@ -3203,7 +3203,8 @@ void onWifiConnect(const WiFiEventStationModeGotIP &event)
   {
     mqtt_reconnect_timeout = millis() + MQTT_RECONNECT_INTERVAL_MS; // only retry next 5 seconds to prevent crash
     ticker.detach();                                                // Stop blinking the LED because now we are connected:)
-    digitalWrite(blueLedPin, LOW);
+    // keep LED off (For Wemos D1-Mini)
+    digitalWrite(blueLedPin, HIGH);
     mqttConnect();
     // init and get the time
     configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
