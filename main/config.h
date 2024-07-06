@@ -58,6 +58,9 @@ AsyncEventSource events("/events"); // Create an Event Source on /events
 #include <Ticker.h>   // for LED status (Using a Wemos D1-Mini)
 #include "time.h"     // time lib
 
+#include <map>
+#include <cmath>              // For roundf function
+
 // Let Encrypt isrgrootx1.pem
 const char rootCA_LE[] = R"====(
 -----BEGIN CERTIFICATE-----
