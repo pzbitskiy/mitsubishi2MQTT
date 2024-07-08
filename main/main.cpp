@@ -2797,7 +2797,7 @@ void sendHaConfig()
   haConfig["curr_temp_tpl"] = curr_temp_tpl_str;
   haConfig["min_temp"] = convertCelsiusToLocalUnit(min_temp, useFahrenheit);
   haConfig["max_temp"] = convertCelsiusToLocalUnit(max_temp, useFahrenheit);
-  haConfig["temp_step"] = temp_step;
+  haConfig["temp_step"] = strtof(temp_step.c_str(), NULL);
   haConfig["temperature_unit"] = useFahrenheit ? "F" : "C";
 
   JsonArray haConfigFan_modes = haConfig.createNestedArray("fan_modes");
