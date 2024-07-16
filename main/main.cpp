@@ -2055,17 +2055,16 @@ void hpSettingsChanged()
   // send room temp, operating info and all information
   readHeatPumpSettings();
 
-  String mqttOutput;
-  serializeJson(rootInfo, mqttOutput);
-  if (mqttClient != nullptr)
+  if (mqttClient != nullptr && mqttClient->connected())
   {
+    String mqttOutput;
+    serializeJson(rootInfo, mqttOutput);
     if (!mqttClient->publish(ha_settings_topic.c_str(), 1, true, mqttOutput.c_str()))
     {
       if (_debugModeLogs)
         mqttClient->publish(ha_debug_logs_topic.c_str(), 1, false, (char *)("Failed to publish hp settings"));
     }
   }
-  mqttOutput = "";
   hpStatusChanged(hp.getStatus());
 }
 
@@ -2233,17 +2232,16 @@ void hpStatusChanged(heatpumpStatus currentStatus)
   events.send(currentSettings.power, "power", millis(), 110);
   rootInfo["compressorFrequency"] = currentStatus.compressorFrequency;
   rootInfo["upTime"] = getUpTime();
-  String mqttOutput;
-  serializeJson(rootInfo, mqttOutput);
-  if (mqttClient != nullptr)
+  if (mqttClient != nullptr && mqttClient->connected())
   {
+    String mqttOutput;
+    serializeJson(rootInfo, mqttOutput);
     if (!mqttClient->publish(ha_state_topic.c_str(), 1, false, mqttOutput.c_str()))
     {
       if (_debugModeLogs)
         mqttClient->publish(ha_debug_logs_topic.c_str(), 1, false, (char *)("Failed to publish hp status change"));
     }
   }
-  mqttOutput = "";
 }
 
 void hpCheckRemoteTemp()
@@ -2259,16 +2257,14 @@ void hpCheckRemoteTemp()
 
 void sendKeepAlive()
 {
-  if (millis() - lastAliveMsgSend > SEND_ALIVE_MSG_INTERVAL_MS)
-  {
-    lastAliveMsgSend = millis();
-  }
-  else
+  if (millis() - lastAliveMsgSend < SEND_ALIVE_MSG_INTERVAL_MS)
   {
     return;
   }
+  lastAliveMsgSend = millis();
+
   // send keep alive message
-  if (mqttClient != nullptr)
+  if (mqttClient != nullptr && mqttClient->connected())
   {
     if (!mqttClient->publish(ha_availability_topic.c_str(), 1, true, mqtt_payload_available))
     {
@@ -2296,10 +2292,10 @@ void hpPacketDebug(byte *packet, unsigned int length, const char *packetDirectio
     StaticJsonDocument<bufferSize> root;
 
     root[packetDirection] = message;
-    String mqttOutput;
-    serializeJson(root, mqttOutput);
-    if (mqttClient != nullptr)
+    if (mqttClient != nullptr && mqttClient->connected())
     {
+      String mqttOutput;
+      serializeJson(root, mqttOutput);
       if (!mqttClient->publish(ha_debug_pckts_topic.c_str(), 1, false, mqttOutput.c_str()))
       {
         mqttClient->publish(ha_debug_logs_topic.c_str(), 1, false, (char *)("Failed to publish to heatpump/debug topic"));
@@ -2312,11 +2308,10 @@ void hpPacketDebug(byte *packet, unsigned int length, const char *packetDirectio
 // HA change GUI appareance before having a valid state from the unit
 void hpSendLocalState()
 {
-
-  String mqttOutput;
-  serializeJson(rootInfo, mqttOutput);
-  if (mqttClient != nullptr)
+  if (mqttClient != nullptr && mqttClient->connected())
   {
+    String mqttOutput;
+    serializeJson(rootInfo, mqttOutput);
     mqttClient->publish(ha_debug_pckts_topic.c_str(), 1, false, mqttOutput.c_str());
     if (!mqttClient->publish(ha_state_topic.c_str(), 1, false, mqttOutput.c_str()))
     {
@@ -2324,7 +2319,6 @@ void hpSendLocalState()
         mqttClient->publish(ha_debug_logs_topic.c_str(), 1, false, (char *)("Failed to publish dummy hp status change"));
     }
   }
-  mqttOutput = "";
   // Restart counter for waiting enought time for the unit to update before sending a state packet
   lastTempSend = millis();
 }
@@ -2971,10 +2965,10 @@ void loop()
     }
 #endif
     if (wifiConnected && mqtt_connected)
-    { 
+    {
       // only send the temperature every SEND_ROOM_TEMP_INTERVAL_MS (millis rollover tolerant)
       // if (millis() - lastTempSend > SEND_ROOM_TEMP_INTERVAL_MS)
-      // { 
+      // {
       //   hpStatusChanged(hp.getStatus());
       //   lastTempSend = millis();
       // }
