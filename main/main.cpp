@@ -115,6 +115,8 @@ void factoryReset();
 void otaUpdateProgress(size_t prg, size_t sz);
 String getFanModeFromHa(String modeFromHa);
 String getFanModeFromHp(String modeFromHp);
+String getWifiBSSID();
+void sendDeviceInfo();
 // End  header for build with IDF and Platformio
 
 #ifdef ESP8266
@@ -182,6 +184,7 @@ void setup()
     ha_settings_topic = mqtt_topic + "/" + mqtt_fn + "/settings";
     ha_state_topic = mqtt_topic + "/" + mqtt_fn + "/state";
     //
+    ha_system_setting_info = mqtt_topic + "/" + mqtt_fn + "/system/info"; // for device info
     ha_debug_pckts_topic = mqtt_topic + "/" + mqtt_fn + "/debug/packets";
     ha_debug_pckts_set_topic = mqtt_topic + "/" + mqtt_fn + "/debug/packets/set";
     ha_debug_logs_topic = mqtt_topic + "/" + mqtt_fn + "/debug/logs";
@@ -1437,6 +1440,8 @@ void handleStatus(AsyncWebServerRequest *request)
   else
     statusPage.replace(F("_MQTT_STATUS_"), disconnected);
   statusPage.replace(F("_WIFI_STATUS_"), String(WiFi.RSSI()));
+  statusPage.replace(F("_WIFI_BSSID_"), getWifiBSSID());
+  statusPage.replace(F("_WIFI_MAC_"), getId());
   statusPage.replace(F("_BUILD_VERSION_"), getAppVersion());
   statusPage.replace(F("_BUILD_DATE_"), getBuildDatetime());
   // get free heap and percent
@@ -2271,6 +2276,7 @@ void sendKeepAlive()
       if (_debugModeLogs)
         mqttClient->publish(ha_debug_logs_topic.c_str(), 1, false, (char *)"Failed to publish avialable status");
     }
+    sendDeviceInfo();
   }
 }
 
@@ -2601,7 +2607,7 @@ void haConfigFreq(String tag, String unit, String icon) {
   mqttClient->publish(ha_config_topic_sensor.c_str(), 1, true, mqttOutput.c_str());
 }
 
-void haConfigTime(String tag, String unit, String icon)
+void haConfigSensor(String tag, String unit, String icon)
 {
   // send HA config packet for up time
   const size_t capacity = JSON_ARRAY_SIZE(15) + JSON_OBJECT_SIZE(30) + 150;
@@ -2609,14 +2615,96 @@ void haConfigTime(String tag, String unit, String icon)
 
   haConfig["icon"] = icon;
   haConfig["name"] = tag;
+  // clean string
+  tag.replace(" ", "_");
+  tag.toLowerCase();
+  //
   haConfig["unique_id"] = String("hvac_") + getId() + "_" + tag;
+  if (strcmp(tag.c_str(), "connection_state") == 0)
+  {
+    haConfig["dev_cla"] = "connectivity";
+    haConfig["entity_category"] = "diagnostic";
+    haConfig["payload_on"] = "online";
+    haConfig["payload_off"] = "offline";
+    haConfig["stat_t"] = ha_system_setting_info;
+    haConfig["val_tpl"] = "{{ value_json.connection_state }}";
+  }
+  else if (strcmp(tag.c_str(), "up_time") == 0)
+  {
+    // haConfig["dev_cla"] = "timestamp";
+    haConfig["stat_t"] = ha_system_setting_info;
+    // haConfig["unit_of_meas"] = unit;
+    haConfig["val_tpl"] = "{{value_json." + tag + "}}";
+    haConfig["entity_category"] = "diagnostic";
+  }
+  else if (strcmp(tag.c_str(), "free_heap") == 0)
+  {
+    haConfig["entity_category"] = "diagnostic";
+    haConfig["stat_t"] = ha_system_setting_info;
+    haConfig["unit_of_meas"] = unit;
+    haConfig["val_tpl"] = "{{value_json." + tag + "}}";
+  }
+  else if (strcmp(tag.c_str(), "rssi") == 0)
+  {
+    haConfig["entity_category"] = "diagnostic";
+    haConfig["stat_t"] = ha_system_setting_info;
+    haConfig["unit_of_meas"] = unit;
+    haConfig["val_tpl"] = "{{value_json." + tag + "}}";
+  }
+  else if (strcmp(tag.c_str(), "bssi") == 0)
+  {
+    haConfig["entity_category"] = "diagnostic";
+    haConfig["stat_t"] = ha_system_setting_info;
+    haConfig["val_tpl"] = "{{value_json." + tag + "}}";
+  }
 
-  // haConfig["dev_cla"] = "timestamp";
-  haConfig["stat_t"] = ha_state_topic;
-  // haConfig["unit_of_meas"] = unit;
-  haConfig["val_tpl"] = "{{value_json." + tag + "}}";
+  JsonObject haConfigDevice = haConfig["device"].to<JsonObject>();
+  haConfigDevice["ids"] = mqtt_fn;
+  haConfigDevice["name"] = mqtt_fn;
+  haConfigDevice["sw"] = getAppVersion();
+  // haConfigDevice["sn"] = getId();
+  haConfigDevice["mdl"] = model;
+  haConfigDevice["mf"] = manufacturer;
+  haConfigDevice["cu"] = "http://" + WiFi.localIP().toString();
 
-  JsonObject haConfigDevice = haConfig.createNestedObject("device");
+  String mqttOutput;
+  serializeJson(haConfig, mqttOutput);
+  String ha_config_topic_sensor;
+  if (strcmp(tag.c_str(), "connection_state") == 0)
+  {
+    ha_config_topic_sensor = "homeassistant/binary_sensor/hvac_" + getId() + "_" + tag + "/config";
+  }
+  else
+  {
+    ha_config_topic_sensor = "homeassistant/sensor/hvac_" + getId() + "_" + tag + "/config";
+  }
+  mqttClient->publish(ha_config_topic_sensor.c_str(), 1, true, mqttOutput.c_str());
+}
+
+void haConfigButton(String tag, String payload_press, String icon)
+{
+  // send HA config packet for button
+  const size_t capacity = JSON_ARRAY_SIZE(15) + JSON_OBJECT_SIZE(30) + 150;
+  DynamicJsonDocument haConfig(capacity);
+
+  haConfig["icon"] = icon;
+  haConfig["name"] = tag;
+  // clean string
+  tag.replace(" ", "_");
+  tag.toLowerCase();
+  String deviceId = hostname;
+  deviceId.toLowerCase();
+  //
+  haConfig["unique_id"] = deviceId + "_" + tag;
+  if (strcmp(payload_press.c_str(), "restart") == 0)
+  {
+    haConfig["dev_cla"] = "restart";
+  }
+  haConfig["command_topic"] = ha_system_set_topic;
+  haConfig["entity_category"] = "config";
+  haConfig["payload_press"] = payload_press; //"restart", "factory", "upgrade" ;
+
+  JsonObject haConfigDevice = haConfig["device"].to<JsonObject>();
   haConfigDevice["ids"] = mqtt_fn;
   haConfigDevice["name"] = mqtt_fn;
   haConfigDevice["sw"] = String(appName) + " " + String(getAppVersion());
@@ -2627,8 +2715,34 @@ void haConfigTime(String tag, String unit, String icon)
 
   String mqttOutput;
   serializeJson(haConfig, mqttOutput);
-  String ha_config_topic_sensor = "homeassistant/sensor/hvac_" + getId() + "_" + tag + "/config";
-  mqttClient->publish(ha_config_topic_sensor.c_str(), 1, true, mqttOutput.c_str());
+  String ha_config_topic_button = "homeassistant/button/" + deviceId + "/" + tag + "/config";
+  mqttClient->publish(ha_config_topic_button.c_str(), 1, true, mqttOutput.c_str());
+}
+
+void sendDeviceInfo()
+{
+  // send HA config packet for device info
+  const size_t capacity = JSON_ARRAY_SIZE(15) + JSON_OBJECT_SIZE(30) + 150;
+  DynamicJsonDocument haConfigInfo(capacity);
+
+  haConfigInfo["connection_state"] = hp.isConnected() ? "online" : "offline";
+  // get free heap in percent
+#ifdef ESP32
+  uint32_t freeHeapBytes = heap_caps_get_free_size(MALLOC_CAP_DEFAULT);
+  uint32_t totalHeapBytes = heap_caps_get_total_size(MALLOC_CAP_DEFAULT);
+#else
+  uint32_t freeHeapBytes = ESP.getFreeHeap();
+  uint32_t totalHeapBytes = 64000;
+#endif
+  float percentageHeapFree = freeHeapBytes * 100.0f / (float)totalHeapBytes;
+  String heap(percentageHeapFree);
+  haConfigInfo["free_heap"] = heap;
+  // get wifi rssi
+  haConfigInfo["rssi"] = String(WiFi.RSSI());
+  haConfigInfo["bssi"] = getWifiBSSID();
+  String mqttOutput;
+  serializeJson(haConfigInfo, mqttOutput);
+  mqttClient->publish(ha_system_setting_info.c_str(), 1, true, mqttOutput.c_str());
 }
 
 void sendHaConfig()
@@ -2723,7 +2837,14 @@ void sendHaConfig()
   // Freq sensor
   haConfigFreq("compressorFreq", "Hz", "mdi:sine-wave");
   // Up time
-  haConfigTime("upTime", "", "mdi:clock");
+  haConfigSensor("upTime", "", "mdi:clock");
+  // HVAC connection state
+  haConfigSensor("Connection state", "", "mdi:check-network");
+  haConfigSensor("Free Heap", "%", "mdi:memory");
+  haConfigSensor("RSSI", "dBm", "mdi:network-strength-1");
+  haConfigSensor("BSSI", "", "mdi:router-wireless");
+  // Button
+  haConfigButton("Restart", "restart", "mdi:restart");
 }
 
 void mqttConnect()
@@ -3467,4 +3588,13 @@ void factoryReset()
     ESP_LOGE(TAG, "fctry partition not found");
   }
 #endif
+}
+
+String getWifiBSSID()
+{
+  uint8* mac = WiFi.BSSID();
+  // Wifi BSSID
+  char wifi_bssid[18];
+  snprintf(wifi_bssid, 18, "%02X:%02X:%02X:%02X:%02X:%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+  return String(wifi_bssid);
 }

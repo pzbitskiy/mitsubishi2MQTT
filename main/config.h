@@ -225,6 +225,7 @@ String ha_fan_set_topic;
 String ha_vane_set_topic;
 String ha_wide_vane_set_topic;
 String ha_settings_topic;
+String ha_system_setting_info;
 String ha_state_topic;
 String ha_debug_pckts_topic;
 String ha_debug_pckts_set_topic;
