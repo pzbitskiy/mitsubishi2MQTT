@@ -3592,7 +3592,7 @@ void factoryReset()
 
 String getWifiBSSID()
 {
-  uint8* mac = WiFi.BSSID();
+  byte* mac = WiFi.BSSID();
   // Wifi BSSID
   char wifi_bssid[18];
   snprintf(wifi_bssid, 18, "%02X:%02X:%02X:%02X:%02X:%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
