@@ -15,13 +15,13 @@
 */
 
 #include "config.h"            // config file
-#include "html_common.h"       // common code HTML (like header, footer)
-#include "javascript_common.h" // common code javascript (like refresh page)
-#include "html_init.h"         // code html for initial config
-#include "html_menu.h"         // code html for menu
-#include "html_pages.h"        // code html for pages
+#include "htmls/html_common.h"       // common code HTML (like header, footer)
+#include "htmls/javascript_common.h" // common code javascript (like refresh page)
+#include "htmls/html_init.h"         // code html for initial config
+#include "htmls/html_menu.h"         // code html for menu
+#include "htmls/html_pages.h"        // code html for pages
 #ifdef METRICS
-#include "html_metrics.h" // prometheus metrics
+#include "htmls/html_metrics.h" // prometheus metrics
 #endif
 
 // Start header for build with IDF and Platformio
