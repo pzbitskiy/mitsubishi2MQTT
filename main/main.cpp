@@ -1692,6 +1692,13 @@ void handleMetrics(AsyncWebServerRequest *request)
   if (hppower == "0")
     hpmode = "0";
 
+#ifdef ESP32
+  uint32_t freeHeapBytes = heap_caps_get_free_size(MALLOC_CAP_DEFAULT);
+#else
+  uint32_t freeHeapBytes = ESP.getFreeHeap();
+#endif
+  String heap(freeHeapBytes);
+
   metrics.replace("_UNIT_NAME_", hostname);
   metrics.replace("_VERSION_", m2mqtt_version);
   metrics.replace("_POWER_", hppower);
@@ -1703,7 +1710,9 @@ void handleMetrics(AsyncWebServerRequest *request)
   metrics.replace("_MODE_", hpmode);
   metrics.replace("_OPER_", (String)currentStatus.operating);
   metrics.replace("_COMPFREQ_", (String)currentStatus.compressorFrequency);
-  sendWrappedHTML(request, metrics);
+  metrics.replace("_FREE_HEAP_", (String)freeHeapBytes);
+
+  request->send_P(200, "text/plain", metrics.c_str());
 }
 #endif
 

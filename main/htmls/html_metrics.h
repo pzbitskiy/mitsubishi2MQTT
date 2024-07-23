@@ -45,4 +45,7 @@ mitsubishi_operating{hostname="_UNIT_NAME_"} _OPER_
 # HELP mitsubishi_compressor_frequency Heat pump compressor frequency
 # TYPE mitsubishi_compressor_frequency gauge
 mitsubishi_compressor_frequency{hostname="_UNIT_NAME_"} _COMPFREQ_
+# HELP mitsubishi_free_heap Free memory
+# TYPE mitsubishi_free_heap gauge
+mitsubishi_free_heap{hostname="_UNIT_NAME_"} _FREE_HEAP_
 )====";
