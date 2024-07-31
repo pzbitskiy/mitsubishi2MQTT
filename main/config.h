@@ -13,7 +13,7 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#include "FS.h" // SPIFFS for store config
+#include "LittleFS.h" // SPIFFS for store config
 #ifdef ESP32
 #include <WiFi.h> // WIFI for ESP32
 #include <WiFiUdp.h>
