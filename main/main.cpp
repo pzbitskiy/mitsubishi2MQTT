@@ -2551,7 +2551,9 @@ void mqttCallback(const char *topic, const uint8_t *payload, const unsigned int 
   }
   else
   {
-    mqttClient->publish(ha_debug_logs_topic.c_str(), 1, false, strcat((char *)"heatpump: wrong mqtt topic: ", topic));
+    String msg("heatpump: wrong mqtt topic: ");
+    msg += topic;
+    mqttClient->publish(ha_debug_logs_topic.c_str(), 1, false, msg.c_str());
   }
 
   if (update)
