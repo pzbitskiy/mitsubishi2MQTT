@@ -107,6 +107,7 @@ namespace ca
   const char txt_status_wifi_ip[] PROGMEM = "IP WIFI";
   const char txt_failed_get_wifi_ip[] PROGMEM = "No s'ha pogut obtenir l'adreça IP";
   const char txt_status_wifi[] PROGMEM = "RSSI WIFI";
+  const char txt_fs_size[] PROGMEM = "Mida del sistema de fitxers";
   const char txt_build_version[] PROGMEM = "Versió de compilació";
   const char txt_build_date[] PROGMEM = "Data de compilació";
   const char txt_status_freeheap[] PROGMEM = "Espai lliure";

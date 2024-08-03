@@ -159,6 +159,7 @@ const char html_page_status[] PROGMEM =
             "<br /> WIFI BSSID => _WIFI_BSSID_"
             "<br /> WIFI MAC => _WIFI_MAC_"
             "<br /> _TXT_STATUS_WIFI_ => _WIFI_STATUS_ dBm"
+            "<br /> _TXT_FS_SIZE_ => _FS_SIZE_"
             "<br /> _TXT_BUILD_VERSION_ => _BUILD_VERSION_"
             "<br /> _TXT_BUILD_DATE_ => _BUILD_DATE_"
             "<br /> _TXT_STATUS_FREEHEAP_ => _FREE_HEAP_"

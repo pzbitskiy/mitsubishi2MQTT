@@ -1405,6 +1405,7 @@ void handleStatus(AsyncWebServerRequest *request)
   statusPage.replace("_TXT_STATUS_MQTT_", translatedWord(FL_(txt_status_mqtt)));
   statusPage.replace("_TXT_STATUS_WIFI_IP_", translatedWord(FL_(txt_status_wifi_ip)));
   statusPage.replace("_TXT_STATUS_WIFI_", translatedWord(FL_(txt_status_wifi)));
+  statusPage.replace("_TXT_FS_SIZE_", translatedWord(FL_(txt_fs_size)));
   statusPage.replace("_TXT_BUILD_VERSION_", translatedWord(FL_(txt_build_version)));
   statusPage.replace("_TXT_BUILD_DATE_", translatedWord(FL_(txt_build_date)));
   statusPage.replace("_TXT_STATUS_FREEHEAP_", translatedWord(FL_(txt_status_freeheap)));
@@ -1449,6 +1450,7 @@ void handleStatus(AsyncWebServerRequest *request)
   statusPage.replace(F("_WIFI_STATUS_"), String(WiFi.RSSI()));
   statusPage.replace(F("_WIFI_BSSID_"), getWifiBSSID());
   statusPage.replace(F("_WIFI_MAC_"), getId());
+  statusPage.replace(F("_FS_SIZE_"), String(FS_end-FS_start));
   statusPage.replace(F("_BUILD_VERSION_"), getAppVersion());
   statusPage.replace(F("_BUILD_DATE_"), getBuildDatetime());
   // get free heap and percent

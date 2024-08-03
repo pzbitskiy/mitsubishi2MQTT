@@ -108,6 +108,7 @@ namespace da
   const char txt_status_disconnect[] PROGMEM = "DICONNECTED";
   const char txt_status_wifi_ip[] PROGMEM = "WIFI IP";
   const char txt_failed_get_wifi_ip[] PROGMEM = "Failed to get IP address";
+  const char txt_fs_size[] PROGMEM = "Filesystem size";
   const char txt_build_version[] PROGMEM = "Build Version";
   const char txt_build_date[] PROGMEM = "Build Date";
   const char txt_status_freeheap[] PROGMEM = "Free Heap";

@@ -107,6 +107,7 @@ namespace vi
   const char txt_status_wifi_ip[] PROGMEM = "WIFI IP";
   const char txt_failed_get_wifi_ip[] PROGMEM = "Lỗi khi lấy địa chỉ IP";
   const char txt_status_wifi[] PROGMEM = "WIFI RSSI";
+  const char txt_fs_size[] PROGMEM = "Kích thước hệ thống tập tin";
   const char txt_build_version[] PROGMEM = "Phiên bản Dựng";
   const char txt_build_date[] PROGMEM = "Ngày Dựng";
   const char txt_status_freeheap[] PROGMEM = "Bộ nhớ trống";
