@@ -1934,12 +1934,21 @@ void handleUploadLoop(AsyncWebServerRequest *request, const String& filename, si
       mqtt_reconnect_timeout = millis() + MQTT_RECONNECT_INTERVAL_MS;
     }
     ota_content_len = request->contentLength();
-    // if filename includes spiffs, update the spiffs partition
-    int cmd = (filename.indexOf("spiffs") > -1) ? U_PART : U_FLASH;
+    // if filename includes littlefs, update the littlefs partition
+    bool isFs = filename.indexOf("littlefs") > -1;
+    int cmd = isFs ? U_FS : U_FLASH;
     // uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000; // 0x1000 start boot loader
 #ifdef ESP8266
+    size_t update_size = ota_content_len;
+    if (isFs)
+    {
+      update_size = (size_t)(FS_end - FS_start);
+      // https://arduino-esp8266.readthedocs.io/en/latest/filesystem.html#flash-layout
+      // > Use this method before updating the file system using OTA.
+      LittleFS.end();
+    }
     Update.runAsync(true);
-    if (!Update.begin(ota_content_len, cmd))
+    if (!Update.begin(update_size, cmd))
     {
 #else
     if (!Update.begin(UPDATE_SIZE_UNKNOWN, cmd))
