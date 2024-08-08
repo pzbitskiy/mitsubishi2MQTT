@@ -13,8 +13,8 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
- 
-const char html_common_header[] PROGMEM = 
+
+const char html_common_header[] PROGMEM =
 "<!DOCTYPE html>"
 "<html lang='en' class=''>"
 
@@ -205,6 +205,33 @@ const char html_common_header[] PROGMEM =
         ".slider.round:before {"
             "border-radius: 50%;"
         "}"
+        "@media (prefers-color-scheme: dark) {"
+            "body {"
+                "background: #252525;"
+            "}"
+            "fieldset {"
+                "background-color: #4f4f4f;"
+            "}"
+            ".main {"
+                "color: #eaeaea;"
+            "}"
+            "textarea {"
+                "background: #1f1f1f;"
+                "color: #65c115;"
+            "}"
+            "button, a.button {"
+                "background: #1fa3ec;"
+                "color: #eaeaea;"
+            "}"
+            "input:not([type]),input[type=password],input[type=number] {"
+                "background: #dddddd;"
+                "color: #000000;"
+            "}"
+            "a {"
+                "color: #1fa3ec;"
+            "}"
+
+        "}"
     "</style>"
 "</head>"
 "<body>"
@@ -216,7 +243,7 @@ const char html_common_header[] PROGMEM =
         "<h3>_UNIT_NAME_</h3>"
      "</div>";
 
-const char html_common_footer[] PROGMEM = 
+const char html_common_footer[] PROGMEM =
     "<br/>"
     "<div style='text-align:right;font-size:10px;color: grey;'>"
        "<hr/>_APP_NAME_ _VERSION_</div>"
